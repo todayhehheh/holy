@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오늘의 묵상</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-overlay: rgba(0, 0, 0, 0.4);
+            --card-bg: #fdfdfd;
+            --text-main: #2b2b2b;
+            --text-sub: #666;
+            --accent-color: #8d6e63;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #333;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1s ease-in-out;
+            overflow: hidden;
+        }
+
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-overlay); z-index: 1;
+            backdrop-filter: blur(3px);
+        }
+
+        /* 상단 맞춤 인사 & 오디오 버튼 영역 */
+        .top-bar {
+            position: absolute; top: 0; left: 0; width: 100%;
+            padding: 20px 25px;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .greeting-text {
+            color: white;
+            font-family: 'Gowun Batang', serif;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            opacity: 0;
+            animation: fadeIn 1.5s ease-out forwards;
+        }
+
+        .sound-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        .sound-btn.playing { background: rgba(255,255,255,0.9); color: var(--accent-color); }
+
+        /* 메인 카드 컨테이너 (캡처 대상) */
+        .card-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 85%;
+            max-width: 360px;
+            /* 캡처 시 배경이 투명해지는 것 방지 */
+            background: transparent; 
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 55vh;
+            position: relative; /* 로고 배치 등을 위해 */
+        }
+
+        .date-label {
+            font-size: 0.75rem; color: #999; letter-spacing: 2px;
+            margin-bottom: 25px; text-transform: uppercase;
+        }
+
+        .verse-content {
+            margin-bottom: 30px;
+            flex-grow: 1;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .verse-text {
+            font-family: 'Gowun Batang', serif;
+            font-size: 1.35rem; color: var(--text-main);
+            line-height: 1.7; font-weight: 700;
+            word-break: keep-all; margin-bottom: 20px;
+        }
+
+        .verse-source {
+            font-family: 'Gowun Batang', serif;
+            font-size: 0.95rem; color: var(--accent-color);
+            margin-bottom: 30px;
+        }
+
+        .meaning-box {
+            font-size: 0.9rem; color: var(--text-sub);
+            line-height: 1.6;
+            background-color: #f7f7f7;
+            padding: 15px; border-radius: 10px;
+            text-align: left;
+        }
+
+        /* 하단 컨트롤 바 */
+        .bottom-controls {
+            position: relative; z-index: 10;
+            margin-top: 30px;
+            display: flex; gap: 20px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 8px;
+            transition: transform 0.2s;
+        }
+        .ctrl-btn:active { transform: scale(0.95); }
+        .ctrl-btn i { font-size: 1rem; }
+
+        /* 기록함 모달 스타일 (동일) */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fdfdfd; z-index: 100; display: none;
+            flex-direction: column; animation: slideUp 0.3s;
+        }
+        .modal-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .modal-title { font-weight: 700; font-size: 1.1rem; }
+        .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
+        .history-item { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+        .h-date { font-size: 0.75rem; color: #aaa; margin-bottom: 5px; }
+        .h-verse { font-family: 'Gowun Batang'; font-size: 1rem; margin-bottom: 5px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="top-bar">
+        <div class="greeting-text" id="greeting">
+            안녕하세요.<br>오늘도 평안하세요.
+        </div>
+        <button class="sound-btn" id="sound-toggle" onclick="toggleAudio()">
+            <i class="fa-solid fa-volume-xmark" id="sound-icon"></i>
+        </button>
+    </div>
+
+    <div class="card-wrapper" id="capture-target">
+        <div class="card">
+            <div class="date-label" id="card-date">TODAY</div>
+            <div class="verse-content">
+                <div class="verse-text" id="verse">말씀을 불러옵니다...</div>
+                <div class="verse-source" id="source"></div>
+            </div>
+            <div class="meaning-box" id="meaning"></div>
+        </div>
+    </div>
+
+    <div class="bottom-controls">
+        <button class="ctrl-btn" onclick="toggleHistory(true)">
+            <i class="fa-solid fa-book"></i> 기록함
+        </button>
+        <button class="ctrl-btn" onclick="saveCardImage()">
+            <i class="fa-solid fa-download"></i> 저장하기
+        </button>
+    </div>
+
+    <audio id="bgm" loop>
+        <source src="bgm.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="modal" id="history-modal">
+        <div class="modal-header">
+            <span class="modal-title">나의 묵상 기록</span>
+            <button onclick="toggleHistory(false)" style="border:none; background:none; font-size:1.5rem;">&times;</button>
+        </div>
+        <div class="modal-body" id="history-list"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // === 설정 ===
+        const IMAGE_COUNT = 10; // 이미지 개수
+        const STORAGE_KEY_HISTORY = 'bibleHistory_v4';
+        const STORAGE_KEY_TODAY = 'bibleToday_v4';
+
+        function init() {
+            setGreeting();
+            setTodayDateDisplay();
+            setBackground();
+            checkAndLoadVerse();
+        }
+
+        // 1. 시간대별 맞춤 인사 (Personalized Greeting)
+        function setGreeting() {
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('greeting');
+            let message = "";
+
+            if (hour >= 5 && hour < 11) {
+                message = "새로운 하루의 시작,<br>당신의 아침을 응원합니다.";
+            } else if (hour >= 11 && hour < 17) {
+                message = "분주한 하루 속,<br>잠시 마음의 쉼표를 찍어보세요.";
+            } else if (hour >= 17 && hour < 22) {
+                message = "오늘 하루도 참 수고 많으셨어요.<br>평안이 깃들기를.";
+            } else {
+                message = "고요한 밤,<br>깊은 쉼과 위로가 함께하기를.";
+            }
+            greetingEl.innerHTML = message;
+        }
+
+        function setTodayDateDisplay() {
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`;
+            document.getElementById('card-date').innerText = dateStr;
+        }
+
+        function setBackground() {
+            const randomNum = Math.ceil(Math.random() * IMAGE_COUNT);
+            document.body.style.backgroundImage = `url('images/${randomNum}.jpg')`;
+        }
+
+        // 2. 오디오 기능 (BGM)
+        const audio = document.getElementById('bgm');
+        const soundBtn = document.getElementById('sound-toggle');
+        const soundIcon = document.getElementById('sound-icon');
+        let isPlaying = false;
+
+        function toggleAudio() {
+            if (isPlaying) {
+                audio.pause();
+                soundBtn.classList.remove('playing');
+                soundIcon.className = "fa-solid fa-volume-xmark";
+            } else {
+                audio.volume = 0.5; // 볼륨 50%
+                audio.play().catch(e => alert("브라우저 설정으로 인해 재생할 수 없습니다."));
+                soundBtn.classList.add('playing');
+                soundIcon.className = "fa-solid fa-music";
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // 3. 말씀 로드 (하루 1회 고정)
+        function checkAndLoadVerse() {
+            const todayStr = new Date().toLocaleDateString('ko-KR');
+            const savedToday = JSON.parse(localStorage.getItem(STORAGE_KEY_TODAY));
+
+            if (savedToday && savedToday.date === todayStr) {
+                renderVerse(savedToday.data);
+            } else {
+                pickNewDailyVerse(todayStr);
+            }
+        }
+
+        function pickNewDailyVerse(dateStr) {
+            if (!bibleData || bibleData.length === 0) return;
+            const randomIdx = Math.floor(Math.random() * bibleData.length);
+            const selectedData = bibleData[randomIdx];
+
+            renderVerse(selectedData);
+
+            localStorage.setItem(STORAGE_KEY_TODAY, JSON.stringify({ date: dateStr, data: selectedData }));
+            saveToHistory(dateStr, selectedData);
+        }
+
+        function renderVerse(data) {
+            document.getElementById('verse').innerText = data.verse;
+            document.getElementById('source').innerText = data.source;
+            document.getElementById('meaning').innerText = data.meaning;
+        }
+
+        // 4. 이미지 저장 기능 (html2canvas 사용)
+        function saveCardImage() {
+            const target = document.getElementById('capture-target');
+            
+            // 캡처 중임을 알리는 UI 피드백
+            const btn = document.querySelector('.ctrl-btn:nth-child(2)');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 저장 중...';
+
+            html2canvas(target, {
+                scale: 2, // 고화질 저장
+                backgroundColor: null, // 투명 배경 방지
+                logging: false,
+                useCORS: true // 이미지 로드 이슈 방지
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `오늘의묵상_${new Date().getTime()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+
+                // 복구
+                btn.innerHTML = originalText;
+                alert("이미지가 앨범에 저장되었습니다.");
+            }).catch(err => {
+                console.error(err);
+                alert("이미지 저장에 실패했습니다.");
+                btn.innerHTML = originalText;
+            });
+        }
+
+        // 5. 기록함 (기존 동일)
+        function saveToHistory(dateStr, data) {
+            let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
+            if (!history.some(item => item.date === dateStr)) {
+                history.unshift({ date: dateStr, verse: data.verse, source: data.source });
+                if (history.length > 50) history.pop();
+                localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+            }
+        }
+
+        function renderHistory() {
+            const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
+            const listContainer = document.getElementById('history-list');
+            listContainer.innerHTML = '';
+            
+            if(history.length === 0) {
+                listContainer.innerHTML = "<div style='text-align:center; color:#aaa; margin-top:20px;'>저장된 기록이 없습니다.</div>";
+                return;
+            }
+
+            history.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `<div class="h-date">${item.date}</div><div class="h-verse">${item.verse}</div><div style="font-size:0.85rem; color:#8d6e63;">${item.source}</div>`;
+                listContainer.appendChild(div);
+            });
+        }
+
+        function toggleHistory(show) {
+            const modal = document.getElementById('history-modal');
+            if(show) { renderHistory(); modal.style.display = 'flex'; }
+            else { modal.style.display = 'none'; }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
