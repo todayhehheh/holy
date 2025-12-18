@@ -11,13 +11,12 @@
     
     <style>
         :root {
-            --bg-overlay: rgba(0, 0, 0, 0.4); /* 배경 어두운 정도 약간 조절 */
-            /* [중요] 카드 배경 투명도 조절: 0.85가 적당히 투명함 (1은 불투명, 0은 투명) */
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --text-main: #2b2b2b;
-            --text-sub: #444; /* 투명 배경 위 가독성을 위해 약간 진하게 */
-            --accent-color: #8d6e63;
-            --glass-border: 1px solid rgba(255, 255, 255, 0.3); /* 유리 테두리 */
+            --bg-color: #f4f1ea; /* 따뜻한 크림색 배경 */
+            --card-bg: #ffffff;
+            --text-main: #3d3d3d;
+            --text-sub: #666;
+            --accent-color: #967e76; /* 부드러운 갈색 */
+            --card-border: 1px solid #e0dcd5;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -25,137 +24,87 @@
         body {
             margin: 0; padding: 0;
             font-family: 'Pretendard', sans-serif;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: #333;
-            background-size: cover;
-            background-position: center;
-            transition: background-image 1s ease-in-out;
-            overflow: hidden;
+            min-height: 100dvh; /* 최소 높이 설정 */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-color: var(--bg-color); /* 배경 이미지 제거하고 단색 적용 */
         }
 
-        .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-overlay); z-index: 1;
-            backdrop-filter: blur(3px); /* 배경 전체를 살짝 흐리게 */
-        }
+        /* 인사 영역 */
+        .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
+        .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
+        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main); line-height: 1.3; font-weight: 700; }
+        .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
-        .header-area {
-            position: relative; z-index: 10;
-            text-align: center;
-            margin-bottom: 25px;
-            padding: 0 20px;
-            animation: fadeInDown 1s ease-out;
-            width: 100%;
-        }
-
-        .greeting-sub {
-            font-size: 0.85rem; color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 5px; font-weight: 300; letter-spacing: 1px;
-        }
-
-        .greeting-main {
-            font-family: 'Gowun Batang', serif; font-size: 1.35rem; color: white;
-            line-height: 1.4; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-weight: 400;
-        }
-
-        .card-wrapper {
-            position: relative; z-index: 2;
-            width: 88%; max-width: 350px;
-            background: transparent;
-        }
-
-        /* [중요] 투명한 유리 질감 카드 디자인 */
+        /* 카드 영역 (캡처 대상) */
+        .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; }
         .card {
             background: var(--card-bg);
-            /* backdrop-filter: 카드 뒤의 배경을 흐리게 해서 글자 가독성을 높임 */
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px); /* 사파리 브라우저 호환 */
-            border: var(--glass-border); /* 은은한 테두리 */
-            border-radius: 20px;
-            padding: 45px 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3); /* 그림자도 약간 부드럽게 */
-            text-align: center;
-            display: flex; flex-direction: column;
-            min-height: 300px; max-height: 60vh;
-            overflow-y: auto;
+            border: var(--card-border);
+            border-radius: 25px; /* 더 둥글게 */
+            padding: 35px 25px;
+            box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); /* 부드러운 그림자 */
+            text-align: center; display: flex; flex-direction: column;
             position: relative;
-            animation: floatUp 1s cubic-bezier(0.22, 1, 0.36, 1);
         }
-
-        .date-label {
-            font-size: 0.7rem; color: #888; letter-spacing: 2px;
-            margin-bottom: 30px; text-transform: uppercase; font-weight: 600;
-        }
-
-        .verse-content {
-            flex-grow: 1; display: flex; flex-direction: column; justify-content: center;
+        
+        .date-label { font-size: 0.75rem; color: #aaa; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
+        
+        /* [NEW] 카드 내 이미지 영역 */
+        .verse-image-container {
+            width: 100%;
+            /* 이미지 비율 영역 확보 (가로세로 1:1 정사각형 기준, 필요시 수정) */
+            aspect-ratio: 1 / 1; 
             margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #f8f8f8; /* 로딩 전 배경색 */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
+        .verse-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-        .verse-text {
-            font-family: 'Gowun Batang', serif; font-size: 1.4rem; color: var(--text-main);
-            line-height: 1.65; font-weight: 700; word-break: keep-all; margin-bottom: 25px;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.5); /* 글자가 배경에 묻히지 않게 살짝 강조 */
-        }
-
-        .verse-source {
-            font-family: 'Gowun Batang', serif; font-size: 1rem; color: var(--accent-color);
-            position: relative; display: inline-block; font-weight: 600;
-        }
+        .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
+        /* 줄바꿈(white-space: pre-wrap) 적용 */
+        .verse-text { font-family: 'Gowun Batang', serif; font-size: 1.3rem; color: var(--text-main); line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; }
+        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: var(--accent-color); font-weight: 600; }
         
-        .verse-source::before {
-            content: ''; display: block; width: 20px; height: 1px;
-            background: var(--accent-color); margin: 0 auto 15px; opacity: 0.5;
-        }
+        .meaning-box { font-size: 0.95rem; color: var(--text-sub); line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; }
 
-        /* 해석 박스도 반투명하게 변경 */
-        .meaning-box {
-            font-size: 0.92rem; color: var(--text-sub);
-            line-height: 1.6;
-            background-color: rgba(248, 246, 244, 0.6); /* 기존 불투명색 -> 반투명 */
-            padding: 18px; border-radius: 12px; text-align: left;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
+        .bottom-controls { position: relative; z-index: 10; display: flex; gap: 15px; margin-bottom: 30px; }
+        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 25px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
+        .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
-        .bottom-controls {
-            position: relative; z-index: 10; margin-top: 30px; display: flex; gap: 15px;
-        }
+        /* 잠금 화면, 모달 등은 기존 스타일 유지 (색상만 톤앤매너 맞춤) */
+        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(50, 40, 40, 0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 30px; transition: opacity 0.5s; }
+        .lock-icon { font-size: 3rem; margin-bottom: 20px; color: rgba(255,255,255,0.8); }
+        .tag-hint { margin-top: 40px; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; color: #ddd; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* 하단 버튼도 유리 느낌으로 통일 */
-        .ctrl-btn {
-            background: rgba(255,255,255,0.2);
-            border: var(--glass-border);
-            color: white; padding: 12px 20px; border-radius: 50px;
-            font-size: 0.9rem; cursor: pointer;
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            display: flex; align-items: center; gap: 8px; transition: all 0.2s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-        .ctrl-btn:hover, .ctrl-btn:active { background: rgba(255,255,255,0.35); transform: translateY(-2px); }
+        #name-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 5000; display: none; justify-content: center; align-items: center; }
+        .name-card { background: white; width: 85%; max-width: 320px; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .name-btn { background: var(--accent-color); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-size: 1rem; cursor: pointer; width: 100%; font-weight: 600; }
 
-        /* 기록함 모달 (기존 동일) */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fdfdfd; z-index: 100; display: none; flex-direction: column; animation: slideUp 0.3s; }
-        .modal-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
-        .modal-title { font-weight: 700; font-size: 1.1rem; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 100; display: none; flex-direction: column; }
+        .modal-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: var(--card-border); }
         .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
-        .history-item { padding: 15px; border-bottom: 1px solid #f0f0f0; margin-bottom: 5px; }
-        .h-date { font-size: 0.75rem; color: #aaa; margin-bottom: 5px; }
-        .h-verse { font-family: 'Gowun Batang'; font-size: 1rem; margin-bottom: 5px; font-weight: 600; }
-        
-        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes floatUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
+        .history-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: var(--card-border); }
     </style>
 </head>
 <body>
 
-    <div class="overlay"></div>
+    <div id="lock-screen" style="display: none;">
+        <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
+        <div class="lock-title">화면이 잠겼습니다</div>
+        <div class="lock-desc">보안을 위해 접속이 제한되었습니다.<br>키링(NFC)을 다시 태그해주세요.</div>
+        <div class="tag-hint"><i class="fa-solid fa-wifi"></i> NFC 태그 대기 중...</div>
+    </div>
+
+    <div id="name-modal">
+        <div class="name-card">
+            <div class="name-title" style="font-family:'Gowun Batang'; font-weight:700; margin-bottom:20px;">반갑습니다.<br>성함을 알려주세요.</div>
+            <input type="text" id="user-name-input" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; text-align:center; margin-bottom:20px;" placeholder="이름을 입력하세요" maxlength="5">
+            <button class="name-btn" onclick="saveUserName()">확인</button>
+        </div>
+    </div>
 
     <div class="header-area">
         <div class="greeting-sub" id="greeting-time">Good Morning</div>
@@ -165,6 +114,11 @@
     <div class="card-wrapper" id="capture-target">
         <div class="card">
             <div class="date-label" id="card-date">TODAY</div>
+            
+            <div class="verse-image-container">
+                <img id="verse-img" class="verse-img" src="" alt="묵상 이미지">
+            </div>
+
             <div class="verse-content">
                 <div class="verse-text" id="verse">로딩 중...</div>
                 <div class="verse-source" id="source"></div>
@@ -184,7 +138,7 @@
 
     <div class="modal" id="history-modal">
         <div class="modal-header">
-            <span class="modal-title">나의 묵상 기록</span>
+            <span class="modal-title" style="font-weight:700;">나의 묵상 기록</span>
             <button onclick="toggleHistory(false)" style="border:none; background:none; font-size:1.5rem; padding:10px;">&times;</button>
         </div>
         <div class="modal-body" id="history-list"></div>
@@ -192,49 +146,73 @@
 
     <script src="data.js"></script>
     <script>
-        const IMAGE_COUNT = 10; 
-        const STORAGE_KEY_HISTORY = 'bibleHistory_v5';
-        const STORAGE_KEY_TODAY = 'bibleToday_v5';
+        // 기존 IMAGE_COUNT 제거 (더 이상 랜덤 배경 아님)
+        const STORAGE_KEY_HISTORY = 'bibleHistory_v6'; // 버전 업
+        const STORAGE_KEY_TODAY = 'bibleToday_v6';
+        const STORAGE_KEY_AUTH = 'bibleAuthTime';
+        const STORAGE_KEY_NAME = 'bibleUserName';
+        const LOCK_TIMEOUT = 60 * 1000; 
 
         function init() {
-            setGreeting();
+            if (checkLockStatus()) return;
+            checkUserName();
             setTodayDateDisplay();
-            setBackground();
+            // setBackground(); <- 제거됨
             checkAndLoadVerse();
+            setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
         }
 
-        function setGreeting() {
+        // ... (이름 체크, 저장, 인사말 함수들은 기존과 동일) ...
+        function checkUserName() {
+            const savedName = localStorage.getItem(STORAGE_KEY_NAME);
+            if (!savedName) { document.getElementById('name-modal').style.display = 'flex'; } 
+            else { setGreeting(savedName); }
+        }
+        function saveUserName() {
+            const input = document.getElementById('user-name-input');
+            const name = input.value.trim();
+            if (name.length > 0) {
+                localStorage.setItem(STORAGE_KEY_NAME, name);
+                document.getElementById('name-modal').style.display = 'none';
+                setGreeting(name);
+            } else { alert("이름을 입력해주세요."); }
+        }
+        function setGreeting(name) {
             const hour = new Date().getHours();
             const subEl = document.getElementById('greeting-time');
             const msgEl = document.getElementById('greeting-msg');
+            const nameSpan = name ? `<span class="user-name-highlight">${name}님</span>, ` : '';
             let subText = "", msgText = "";
-
-            if (hour >= 5 && hour < 11) { subText = "Morning Prayer"; msgText = "새로운 하루의 시작,<br>당신의 아침을 응원해요."; }
-            else if (hour >= 11 && hour < 17) { subText = "Afternoon Break"; msgText = "분주한 일상 속,<br>잠시 쉼표를 찍어보세요."; }
-            else if (hour >= 17 && hour < 22) { subText = "Evening Comfort"; msgText = "오늘 하루도 수고 많았어요.<br>이제 편안히 쉬세요."; }
-            else { subText = "Silent Night"; msgText = "고요한 밤,<br>깊은 위로가 함께하기를."; }
-            
+            if (hour >= 5 && hour < 11) { subText = "Morning Prayer"; msgText = `${nameSpan}새로운 하루의 시작,<br>당신의 아침을 응원해요.`; } 
+            else if (hour >= 11 && hour < 17) { subText = "Afternoon Break"; msgText = `${nameSpan}분주한 일상 속,<br>잠시 쉼표를 찍어보세요.`; } 
+            else if (hour >= 17 && hour < 22) { subText = "Evening Comfort"; msgText = `${nameSpan}오늘 하루 수고 많았어요.<br>이제 편안히 쉬세요.`; } 
+            else { subText = "Silent Night"; msgText = `${nameSpan}고요한 밤,<br>깊은 위로가 함께하기를.`; }
             subEl.innerText = subText; msgEl.innerHTML = msgText;
         }
 
+        // ... (잠금 체크, 날짜 표시 함수 기존 동일) ...
+        function checkLockStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const authKey = urlParams.get('tag');
+            const lockScreen = document.getElementById('lock-screen');
+            const now = new Date().getTime();
+            if (authKey === 'on') { localStorage.setItem(STORAGE_KEY_AUTH, now); lockScreen.style.display = 'none'; return false; }
+            const lastAuthTime = localStorage.getItem(STORAGE_KEY_AUTH);
+            if (!lastAuthTime || (now - lastAuthTime > LOCK_TIMEOUT)) { lockScreen.style.display = 'flex'; document.body.style.overflow = 'hidden'; return true; }
+            return false;
+        }
         function setTodayDateDisplay() {
             const today = new Date();
             document.getElementById('card-date').innerText = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`;
         }
 
-        // [중요] 이미지 확장자 .png로 변경
-        function setBackground() {
-            const randomNum = Math.ceil(Math.random() * IMAGE_COUNT);
-            document.body.style.backgroundImage = `url('images/${randomNum}.png')`;
-        }
-
+        // [핵심 변경] 말씀 및 이미지 로드
         function checkAndLoadVerse() {
             const todayStr = new Date().toLocaleDateString('ko-KR');
             const savedToday = JSON.parse(localStorage.getItem(STORAGE_KEY_TODAY));
             if (savedToday && savedToday.date === todayStr) { renderVerse(savedToday.data); }
             else { pickNewDailyVerse(todayStr); }
         }
-
         function pickNewDailyVerse(dateStr) {
             if (!bibleData || bibleData.length === 0) return;
             const randomIdx = Math.floor(Math.random() * bibleData.length);
@@ -244,18 +222,22 @@
             saveToHistory(dateStr, selectedData);
         }
 
+        // [핵심 변경] 데이터를 화면에 뿌려주는 함수
         function renderVerse(data) {
+            // 이미지 연결
+            document.getElementById('verse-img').src = 'images/' + data.image;
+            // 텍스트 연결
             document.getElementById('verse').innerText = data.verse;
             document.getElementById('source').innerText = data.source;
             document.getElementById('meaning').innerText = data.meaning;
         }
 
+        // ... (저장, 기록함 함수들은 기존과 동일하되 스타일 클래스만 맞춰짐) ...
         function saveCardImage() {
             const target = document.getElementById('capture-target');
             const btn = document.querySelector('.bottom-controls button:nth-child(2)');
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 저장 중...';
-
             html2canvas(target, { scale: 2, backgroundColor: null, logging: false, useCORS: true })
             .then(canvas => {
                 const link = document.createElement('a');
@@ -266,7 +248,6 @@
                 alert("갤러리에 저장되었습니다.");
             }).catch(err => { console.error(err); btn.innerHTML = originalHTML; alert("저장에 실패했습니다."); });
         }
-
         function saveToHistory(dateStr, data) {
             let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
             if (!history.some(item => item.date === dateStr)) {
@@ -275,7 +256,6 @@
                 localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
             }
         }
-
         function renderHistory() {
             const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
             const listContainer = document.getElementById('history-list');
@@ -284,11 +264,11 @@
             history.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'history-item';
-                div.innerHTML = `<div class="h-date">${item.date}</div><div class="h-verse">${item.verse}</div><div style="font-size:0.85rem; color:#8d6e63; margin-top:5px;">${item.source}</div>`;
+                // 기록함에는 이미지는 빼고 텍스트만 보여줌 (깔끔하게)
+                div.innerHTML = `<div class="h-date" style="font-size:0.75rem; color:#aaa; margin-bottom:5px;">${item.date}</div><div class="h-verse" style="font-family:'Gowun Batang'; font-size:1rem; font-weight:700; margin-bottom:5px;">${item.verse.replace(/\n/g, ' ')}</div><div style="font-size:0.85rem; color:var(--accent-color);">${item.source}</div>`;
                 listContainer.appendChild(div);
             });
         }
-
         function toggleHistory(show) {
             const modal = document.getElementById('history-modal');
             if(show) { renderHistory(); modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
