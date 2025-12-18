@@ -163,14 +163,23 @@
         const LOCK_TIMEOUT = 60 * 1000; 
 
         function init() {
-            //if (checkLockStatus()) return;
-            //checkUserName();
-            //setTodayDateDisplay();
-            //checkAndLoadVerse();
-            //setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
+            // 1. 잠금 화면 체크 (개발 중엔 불편하면 앞에 // 붙여서 꺼두세요)
+            // 배포할 땐 // 지워야 합니다!
+            // if (checkLockStatus()) return; 
+
+            // 2. 이름 체크 (이게 켜져 있어야 양 그림이 뜹니다!)
+            checkUserName();
+
+            // 3. 날짜 및 말씀 로딩 (이게 켜져 있어야 로딩 중...이 사라집니다!)
+            setTodayDateDisplay();
+            checkAndLoadVerse();
+
+            // 4. 자동 새로고침 (잠금 타이머)
+            setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
         }
 
-        // 이름 체크 함수
+        // --- (나머지 함수들은 기존과 동일하므로 그대로 두거나, 아래 내용으로 덮어씌우세요) ---
+
         function checkUserName() {
             const savedName = localStorage.getItem(STORAGE_KEY_NAME);
             if (!savedName) { 
@@ -286,8 +295,12 @@
             else { modal.style.display = 'none'; document.body.style.overflow = ''; }
         }
 
-        window.onload = init;
+        // [중요 변경] window.onload 대신 이 방식을 사용하세요!
+        // 이미지가 로딩 안 되어도 일단 코드를 실행해서 화면을 보여줍니다.
+        document.addEventListener('DOMContentLoaded', init); 
+
     </script>
 </body>
 </html>
+
 
