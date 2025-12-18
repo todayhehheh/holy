@@ -24,9 +24,9 @@
         body {
             margin: 0; padding: 0;
             font-family: 'Pretendard', sans-serif;
-            min-height: 100dvh; /* 최소 높이 설정 */
+            min-height: 100dvh;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background-color: var(--bg-color); /* 배경 이미지 제거하고 단색 적용 */
+            background-color: var(--bg-color);
         }
 
         /* 인사 영역 */
@@ -35,35 +35,33 @@
         .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main); line-height: 1.3; font-weight: 700; }
         .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
-        /* 카드 영역 (캡처 대상) */
+        /* 카드 영역 */
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; }
         .card {
             background: var(--card-bg);
             border: var(--card-border);
-            border-radius: 25px; /* 더 둥글게 */
+            border-radius: 25px;
             padding: 35px 25px;
-            box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); /* 부드러운 그림자 */
+            box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15);
             text-align: center; display: flex; flex-direction: column;
             position: relative;
         }
         
         .date-label { font-size: 0.75rem; color: #aaa; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
         
-        /* [NEW] 카드 내 이미지 영역 */
+        /* 말씀 이미지 영역 */
         .verse-image-container {
             width: 100%;
-            /* 이미지 비율 영역 확보 (가로세로 1:1 정사각형 기준, 필요시 수정) */
             aspect-ratio: 1 / 1; 
             margin-bottom: 30px;
             border-radius: 15px;
             overflow: hidden;
-            background-color: #f8f8f8; /* 로딩 전 배경색 */
+            background-color: #f8f8f8;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
         .verse-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
-        /* 줄바꿈(white-space: pre-wrap) 적용 */
         .verse-text { font-family: 'Gowun Batang', serif; font-size: 1.3rem; color: var(--text-main); line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; }
         .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: var(--accent-color); font-weight: 600; }
         
@@ -73,16 +71,26 @@
         .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 25px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
-        /* 잠금 화면, 모달 등은 기존 스타일 유지 (색상만 톤앤매너 맞춤) */
-        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(50, 40, 40, 0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 30px; transition: opacity 0.5s; }
+        /* [잠금 화면] */
+        #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(50, 40, 40, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 30px; transition: opacity 0.5s; }
         .lock-icon { font-size: 3rem; margin-bottom: 20px; color: rgba(255,255,255,0.8); }
         .tag-hint { margin-top: 40px; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; color: #ddd; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        #name-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 5000; display: none; justify-content: center; align-items: center; }
-        .name-card { background: white; width: 85%; max-width: 320px; padding: 30px; border-radius: 20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .name-btn { background: var(--accent-color); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-size: 1rem; cursor: pointer; width: 100%; font-weight: 600; }
+        /* [이름 입력 모달 스타일 수정] */
+        #name-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 5000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .name-card { background: white; width: 85%; max-width: 320px; padding: 40px 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #f0f0f0; }
+        
+        /* [NEW] 모달 상단 양 이미지 */
+        .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
+        
+        .name-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:25px; color: #444; line-height: 1.4; }
+        .name-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; text-align:center; margin-bottom:20px; font-size: 1.1rem; outline: none; background: #fafafa; }
+        .name-input:focus { border-color: var(--accent-color); background: #fff; }
+        .name-btn { background: var(--accent-color); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 1.1rem; cursor: pointer; width: 100%; font-weight: 600; transition: transform 0.1s; }
+        .name-btn:active { transform: scale(0.98); }
 
+        /* 기록함 모달 */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 100; display: none; flex-direction: column; }
         .modal-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: var(--card-border); }
         .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
@@ -100,9 +108,11 @@
 
     <div id="name-modal">
         <div class="name-card">
-            <div class="name-title" style="font-family:'Gowun Batang'; font-weight:700; margin-bottom:20px;">반갑습니다.<br>성함을 알려주세요.</div>
-            <input type="text" id="user-name-input" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; text-align:center; margin-bottom:20px;" placeholder="이름을 입력하세요" maxlength="5">
-            <button class="name-btn" onclick="saveUserName()">확인</button>
+            <img src="images/intro_lamb.png" alt="환영합니다" class="intro-sheep-img">
+            
+            <div class="name-title">반갑습니다.<br>성함을 알려주세요.</div>
+            <input type="text" id="user-name-input" class="name-input" placeholder="이름 입력 (최대 5글자)" maxlength="5">
+            <button class="name-btn" onclick="saveUserName()">시작하기</button>
         </div>
     </div>
 
@@ -146,8 +156,7 @@
 
     <script src="data.js"></script>
     <script>
-        // 기존 IMAGE_COUNT 제거 (더 이상 랜덤 배경 아님)
-        const STORAGE_KEY_HISTORY = 'bibleHistory_v6'; // 버전 업
+        const STORAGE_KEY_HISTORY = 'bibleHistory_v6';
         const STORAGE_KEY_TODAY = 'bibleToday_v6';
         const STORAGE_KEY_AUTH = 'bibleAuthTime';
         const STORAGE_KEY_NAME = 'bibleUserName';
@@ -157,17 +166,20 @@
             if (checkLockStatus()) return;
             checkUserName();
             setTodayDateDisplay();
-            // setBackground(); <- 제거됨
             checkAndLoadVerse();
             setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
         }
 
-        // ... (이름 체크, 저장, 인사말 함수들은 기존과 동일) ...
+        // 이름 체크 함수
         function checkUserName() {
             const savedName = localStorage.getItem(STORAGE_KEY_NAME);
-            if (!savedName) { document.getElementById('name-modal').style.display = 'flex'; } 
-            else { setGreeting(savedName); }
+            if (!savedName) { 
+                document.getElementById('name-modal').style.display = 'flex'; 
+            } else { 
+                setGreeting(savedName); 
+            }
         }
+
         function saveUserName() {
             const input = document.getElementById('user-name-input');
             const name = input.value.trim();
@@ -177,6 +189,7 @@
                 setGreeting(name);
             } else { alert("이름을 입력해주세요."); }
         }
+
         function setGreeting(name) {
             const hour = new Date().getHours();
             const subEl = document.getElementById('greeting-time');
@@ -190,7 +203,6 @@
             subEl.innerText = subText; msgEl.innerHTML = msgText;
         }
 
-        // ... (잠금 체크, 날짜 표시 함수 기존 동일) ...
         function checkLockStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const authKey = urlParams.get('tag');
@@ -201,18 +213,19 @@
             if (!lastAuthTime || (now - lastAuthTime > LOCK_TIMEOUT)) { lockScreen.style.display = 'flex'; document.body.style.overflow = 'hidden'; return true; }
             return false;
         }
+
         function setTodayDateDisplay() {
             const today = new Date();
             document.getElementById('card-date').innerText = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`;
         }
 
-        // [핵심 변경] 말씀 및 이미지 로드
         function checkAndLoadVerse() {
             const todayStr = new Date().toLocaleDateString('ko-KR');
             const savedToday = JSON.parse(localStorage.getItem(STORAGE_KEY_TODAY));
             if (savedToday && savedToday.date === todayStr) { renderVerse(savedToday.data); }
             else { pickNewDailyVerse(todayStr); }
         }
+
         function pickNewDailyVerse(dateStr) {
             if (!bibleData || bibleData.length === 0) return;
             const randomIdx = Math.floor(Math.random() * bibleData.length);
@@ -222,17 +235,13 @@
             saveToHistory(dateStr, selectedData);
         }
 
-        // [핵심 변경] 데이터를 화면에 뿌려주는 함수
         function renderVerse(data) {
-            // 이미지 연결
             document.getElementById('verse-img').src = 'images/' + data.image;
-            // 텍스트 연결
             document.getElementById('verse').innerText = data.verse;
             document.getElementById('source').innerText = data.source;
             document.getElementById('meaning').innerText = data.meaning;
         }
 
-        // ... (저장, 기록함 함수들은 기존과 동일하되 스타일 클래스만 맞춰짐) ...
         function saveCardImage() {
             const target = document.getElementById('capture-target');
             const btn = document.querySelector('.bottom-controls button:nth-child(2)');
@@ -248,6 +257,7 @@
                 alert("갤러리에 저장되었습니다.");
             }).catch(err => { console.error(err); btn.innerHTML = originalHTML; alert("저장에 실패했습니다."); });
         }
+
         function saveToHistory(dateStr, data) {
             let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
             if (!history.some(item => item.date === dateStr)) {
@@ -256,6 +266,7 @@
                 localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
             }
         }
+
         function renderHistory() {
             const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
             const listContainer = document.getElementById('history-list');
@@ -264,11 +275,11 @@
             history.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'history-item';
-                // 기록함에는 이미지는 빼고 텍스트만 보여줌 (깔끔하게)
                 div.innerHTML = `<div class="h-date" style="font-size:0.75rem; color:#aaa; margin-bottom:5px;">${item.date}</div><div class="h-verse" style="font-family:'Gowun Batang'; font-size:1rem; font-weight:700; margin-bottom:5px;">${item.verse.replace(/\n/g, ' ')}</div><div style="font-size:0.85rem; color:var(--accent-color);">${item.source}</div>`;
                 listContainer.appendChild(div);
             });
         }
+
         function toggleHistory(show) {
             const modal = document.getElementById('history-modal');
             if(show) { renderHistory(); modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
