@@ -15,13 +15,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-        /* 모든 요소에 라이트 모드 강제 적용 */
         :root { 
             color-scheme: light; 
             --bg-color: #f4f1ea; 
             --card-bg: #ffffff; 
-            --text-main: #3d3d3d; 
-            --text-sub: #666; 
+            --text-main: #333333; /* 완전 검정(#000) 대신 #333 사용 (반전 방지) */
+            --text-sub: #666666; 
             --accent-color: #967e76; 
             --card-border: 1px solid #e0dcd5; 
         }
@@ -35,27 +34,28 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             background-color: var(--bg-color); 
             overflow-x: hidden;
-            color: #333333 !important; /* 강제 고정 */
+            color: var(--text-main) !important;
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
         .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
         .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
-        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #3d3d3d !important; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
+        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main) !important; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
         .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; animation: fadeInUp 0.8s ease-out; }
         
+        /* [핵심 3] 카드 스타일 강화 */
         .card { 
             background: #ffffff !important; 
             border: var(--card-border); border-radius: 25px; padding: 35px 25px; 
             box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); 
             text-align: center; display: flex; flex-direction: column; position: relative;
-            color: #333333 !important; /* 강제 고정 */
+            color: #222222 !important; /* 완전 검정 피하기 */
         }
         
-        .date-label { font-size: 0.75rem; color: #aaa !important; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
+        .date-label { font-size: 0.75rem; color: #aaaaaa !important; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
         
         .verse-image-container { 
             width: 100%; aspect-ratio: 1 / 1; margin-bottom: 30px; border-radius: 15px; overflow: hidden; 
@@ -66,13 +66,13 @@
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
         .verse-text { 
             font-family: 'Gowun Batang', serif; font-size: 1.3rem; 
-            color: #3d3d3d !important; 
+            color: #222222 !important; 
             line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; 
         }
         .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76 !important; font-weight: 600; }
         
         .meaning-box { 
-            font-size: 0.95rem; color: #666666 !important; 
+            font-size: 0.95rem; color: #555555 !important; 
             line-height: 1.65; background-color: #faf9f7 !important; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
         }
 
@@ -382,24 +382,34 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
             
             try { 
-                // [강력 수정] 캡처 직전에 복제된 모든 요소의 색상을 '블랙'으로 강제 변환
-                // onclone: 캡처를 위해 만든 가상의 쌍둥이 요소(clone)를 조작하는 기능
+                // [최종 해결책] 
+                // 1. onclone에서 모든 텍스트 요소를 찾아서 강제로 '짙은 회색(#222)'으로 변경
+                // 2. 텍스트 그림자를 0px로 줘서 브라우저의 색상 반전 무력화
+                // 3. -webkit-text-fill-color 속성으로 색상 강제 주입
                 const canvas = await html2canvas(target, { 
                     scale: 2, 
                     backgroundColor: '#ffffff', 
                     useCORS: true,
                     onclone: (clonedDoc) => {
-                        const allElements = clonedDoc.querySelectorAll('*');
-                        allElements.forEach(el => {
-                            // 카드 배경이나 이미지 컨테이너는 제외하고
-                            if (!el.classList.contains('card') && !el.classList.contains('verse-image-container') && el.tagName !== 'IMG') {
-                                // 모든 글자와 아이콘을 강제로 검은색으로 칠해버림
-                                el.style.color = '#000000';
-                            }
-                        });
-                        // 카드는 흰색 배경 유지
                         const card = clonedDoc.querySelector('.card');
-                        if(card) card.style.backgroundColor = '#ffffff';
+                        if (card) {
+                            card.style.backgroundColor = '#ffffff';
+                            card.style.color = '#222222'; // 완전 검정 회피
+                        }
+
+                        // 모든 텍스트 요소 선택 (제목, 본문, 출처, 설명박스)
+                        const texts = clonedDoc.querySelectorAll('.verse-text, .verse-source, .meaning-box, .date-label, .greeting-main');
+                        texts.forEach(el => {
+                            el.style.color = '#222222 !important'; 
+                            el.style.webkitTextFillColor = '#222222'; // 웹킷 강제 채우기
+                            el.style.textShadow = '0 0 0 #222222'; // 그림자 트릭 (반전 방지)
+                        });
+                        
+                        const meaningBox = clonedDoc.querySelector('.meaning-box');
+                        if(meaningBox) {
+                            meaningBox.style.backgroundColor = '#f9f9f9';
+                            meaningBox.style.color = '#444444';
+                        }
                     }
                 }); 
                 
@@ -447,4 +457,3 @@
     </script>
 </body>
 </html>
-
