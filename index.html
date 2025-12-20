@@ -11,11 +11,11 @@
     
     <style>
         :root {
-            --bg-color: #f4f1ea; /* 따뜻한 크림색 배경 */
+            --bg-color: #f4f1ea;
             --card-bg: #ffffff;
             --text-main: #3d3d3d;
             --text-sub: #666;
-            --accent-color: #967e76; /* 부드러운 갈색 */
+            --accent-color: #967e76;
             --card-border: 1px solid #e0dcd5;
         }
 
@@ -32,65 +32,51 @@
         /* 인사 영역 */
         .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
         .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
-        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main); line-height: 1.3; font-weight: 700; }
+        /* 줄바꿈이 자연스럽게 먹히도록 white-space 설정 추가 */
+        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main); line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
         .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
         /* 카드 영역 */
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; }
         .card {
-            background: var(--card-bg);
-            border: var(--card-border);
-            border-radius: 25px;
-            padding: 35px 25px;
-            box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15);
-            text-align: center; display: flex; flex-direction: column;
-            position: relative;
+            background: var(--card-bg); border: var(--card-border); border-radius: 25px; padding: 35px 25px;
+            box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); text-align: center; display: flex; flex-direction: column; position: relative;
         }
         
         .date-label { font-size: 0.75rem; color: #aaa; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
         
         /* 말씀 이미지 영역 */
         .verse-image-container {
-            width: 100%;
-            aspect-ratio: 1 / 1; 
-            margin-bottom: 30px;
-            border-radius: 15px;
-            overflow: hidden;
-            background-color: #f8f8f8;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+            width: 100%; aspect-ratio: 1 / 1; margin-bottom: 30px; border-radius: 15px; overflow: hidden;
+            background-color: #f8f8f8; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
         .verse-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
+        /* verse-text에도 white-space: pre-wrap 적용되어 줄바꿈 반영됨 */
         .verse-text { font-family: 'Gowun Batang', serif; font-size: 1.3rem; color: var(--text-main); line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; }
         .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: var(--accent-color); font-weight: 600; }
         
         .meaning-box { font-size: 0.95rem; color: var(--text-sub); line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; }
 
-        .bottom-controls { position: relative; z-index: 10; display: flex; gap: 15px; margin-bottom: 30px; }
-        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 25px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
+        .bottom-controls { position: relative; z-index: 10; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; }
+        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
-        /* [잠금 화면] */
+        /* 모달 및 잠금 화면 스타일 */
         #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(50, 40, 40, 0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 30px; transition: opacity 0.5s; }
         .lock-icon { font-size: 3rem; margin-bottom: 20px; color: rgba(255,255,255,0.8); }
         .tag-hint { margin-top: 40px; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; color: #ddd; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* [이름 입력 모달 스타일 수정] */
         #name-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 5000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .name-card { background: white; width: 85%; max-width: 320px; padding: 40px 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #f0f0f0; }
-        
-        /* [NEW] 모달 상단 양 이미지 */
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
-        
         .name-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:25px; color: #444; line-height: 1.4; }
         .name-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; text-align:center; margin-bottom:20px; font-size: 1.1rem; outline: none; background: #fafafa; }
         .name-input:focus { border-color: var(--accent-color); background: #fff; }
         .name-btn { background: var(--accent-color); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-size: 1.1rem; cursor: pointer; width: 100%; font-weight: 600; transition: transform 0.1s; }
-        .name-btn:active { transform: scale(0.98); }
 
-        /* 기록함 모달 */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 100; display: none; flex-direction: column; }
         .modal-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: var(--card-border); }
         .modal-body { flex: 1; overflow-y: auto; padding: 20px; }
@@ -109,7 +95,6 @@
     <div id="name-modal">
         <div class="name-card">
             <img src="images/intro_lamb.png" alt="환영합니다" class="intro-sheep-img">
-            
             <div class="name-title">반갑습니다.<br>성함을 알려주세요.</div>
             <input type="text" id="user-name-input" class="name-input" placeholder="이름 입력 (최대 5글자)" maxlength="5">
             <button class="name-btn" onclick="saveUserName()">시작하기</button>
@@ -124,11 +109,9 @@
     <div class="card-wrapper" id="capture-target">
         <div class="card">
             <div class="date-label" id="card-date">TODAY</div>
-            
             <div class="verse-image-container">
                 <img id="verse-img" class="verse-img" src="" alt="묵상 이미지">
             </div>
-
             <div class="verse-content">
                 <div class="verse-text" id="verse">로딩 중...</div>
                 <div class="verse-source" id="source"></div>
@@ -140,6 +123,9 @@
     <div class="bottom-controls">
         <button class="ctrl-btn" onclick="toggleHistory(true)">
             <i class="fa-solid fa-book-open"></i> 기록함
+        </button>
+        <button class="ctrl-btn" onclick="shareCard()">
+            <i class="fa-solid fa-arrow-up-from-bracket"></i> 공유하기
         </button>
         <button class="ctrl-btn" onclick="saveCardImage()">
             <i class="fa-solid fa-download"></i> 저장하기
@@ -163,22 +149,95 @@
         const LOCK_TIMEOUT = 60 * 1000; 
 
         function init() {
-            // 1. 잠금 화면 체크 (개발 중엔 불편하면 앞에 // 붙여서 꺼두세요)
-            // 배포할 땐 // 지워야 합니다!
+            // 잠금 기능 (배포 시 주석 해제)
             // if (checkLockStatus()) return; 
 
-            // 2. 이름 체크 (이게 켜져 있어야 양 그림이 뜹니다!)
             checkUserName();
-
-            // 3. 날짜 및 말씀 로딩 (이게 켜져 있어야 로딩 중...이 사라집니다!)
             setTodayDateDisplay();
             checkAndLoadVerse();
-
-            // 4. 자동 새로고침 (잠금 타이머)
             setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
         }
 
-        // --- (나머지 함수들은 기존과 동일하므로 그대로 두거나, 아래 내용으로 덮어씌우세요) ---
+        // [NEW] 공유하기 기능 (모바일 네이티브 공유)
+        function shareCard() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '오늘의 묵상',
+                    text: '오늘 당신에게 주시는 하나님의 말씀입니다.',
+                    url: window.location.href,
+                })
+                .then(() => console.log('공유 성공'))
+                .catch((error) => console.log('공유 실패', error));
+            } else {
+                // PC 등 공유 지원 안 하는 경우 클립보드 복사
+                const dummy = document.createElement("textarea");
+                document.body.appendChild(dummy);
+                dummy.value = window.location.href;
+                dummy.select();
+                document.execCommand("copy");
+                document.body.removeChild(dummy);
+                alert("주소가 복사되었습니다.\n카카오톡 등에 붙여넣기 하세요!");
+            }
+        }
+
+        // [NEW] 다양한 인사말 랜덤 로직 (줄바꿈 포함)
+        function getGreetingMessage(timeSlot, nameSpan) {
+            const messages = {
+                morning: [
+                    `${nameSpan}새로운 하루의 시작,\n당신의 아침을 응원해요.`,
+                    `${nameSpan}오늘도 주님 안에서\n기쁨 가득한 하루 되세요.`,
+                    `${nameSpan}상쾌한 아침,\n감사로 시작해 볼까요?`
+                ],
+                afternoon: [
+                    `${nameSpan}분주한 일상 속,\n잠시 쉼표를 찍어보세요.`,
+                    `${nameSpan}나른한 오후,\n말씀으로 힘을 얻으세요.`,
+                    `${nameSpan}점심 맛있게 드셨나요?\n오후도 화이팅!`
+                ],
+                evening: [
+                    `${nameSpan}오늘 하루 수고 많았어요.\n이제 편안히 쉬세요.`,
+                    `${nameSpan}지친 하루의 끝,\n주님의 위로가 함께하길.`,
+                    `${nameSpan}오늘도 잘 버텨주어\n고마워요.`
+                ],
+                night: [
+                    `${nameSpan}고요한 밤,\n깊은 위로가 함께하기를.`,
+                    `${nameSpan}내일의 걱정은 맡기고\n편안히 주무세요.`,
+                    `${nameSpan}오늘 하루도\n당신은 충분히 잘했어요.`
+                ]
+            };
+            
+            // 시간대별 배열에서 랜덤으로 하나 뽑기
+            const msgList = messages[timeSlot];
+            const randomIndex = Math.floor(Math.random() * msgList.length);
+            return msgList[randomIndex];
+        }
+
+        function setGreeting(name) {
+            const hour = new Date().getHours();
+            const subEl = document.getElementById('greeting-time');
+            const msgEl = document.getElementById('greeting-msg');
+            const nameSpan = name ? `<span class="user-name-highlight">${name}님</span>, ` : '';
+            
+            let timeSlot = "";
+            let subText = "";
+
+            if (hour >= 5 && hour < 11) { 
+                subText = "Morning Prayer"; 
+                timeSlot = "morning";
+            } else if (hour >= 11 && hour < 17) { 
+                subText = "Afternoon Break"; 
+                timeSlot = "afternoon";
+            } else if (hour >= 17 && hour < 22) { 
+                subText = "Evening Comfort"; 
+                timeSlot = "evening";
+            } else { 
+                subText = "Silent Night"; 
+                timeSlot = "night";
+            }
+            
+            subEl.innerText = subText;
+            // 랜덤 인사말 가져오기
+            msgEl.innerHTML = getGreetingMessage(timeSlot, nameSpan);
+        }
 
         function checkUserName() {
             const savedName = localStorage.getItem(STORAGE_KEY_NAME);
@@ -188,7 +247,6 @@
                 setGreeting(savedName); 
             }
         }
-
         function saveUserName() {
             const input = document.getElementById('user-name-input');
             const name = input.value.trim();
@@ -198,20 +256,6 @@
                 setGreeting(name);
             } else { alert("이름을 입력해주세요."); }
         }
-
-        function setGreeting(name) {
-            const hour = new Date().getHours();
-            const subEl = document.getElementById('greeting-time');
-            const msgEl = document.getElementById('greeting-msg');
-            const nameSpan = name ? `<span class="user-name-highlight">${name}님</span>, ` : '';
-            let subText = "", msgText = "";
-            if (hour >= 5 && hour < 11) { subText = "Morning Prayer"; msgText = `${nameSpan}새로운 하루의 시작,<br>당신의 아침을 응원해요.`; } 
-            else if (hour >= 11 && hour < 17) { subText = "Afternoon Break"; msgText = `${nameSpan}분주한 일상 속,<br>잠시 쉼표를 찍어보세요.`; } 
-            else if (hour >= 17 && hour < 22) { subText = "Evening Comfort"; msgText = `${nameSpan}오늘 하루 수고 많았어요.<br>이제 편안히 쉬세요.`; } 
-            else { subText = "Silent Night"; msgText = `${nameSpan}고요한 밤,<br>깊은 위로가 함께하기를.`; }
-            subEl.innerText = subText; msgEl.innerHTML = msgText;
-        }
-
         function checkLockStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const authKey = urlParams.get('tag');
@@ -222,19 +266,16 @@
             if (!lastAuthTime || (now - lastAuthTime > LOCK_TIMEOUT)) { lockScreen.style.display = 'flex'; document.body.style.overflow = 'hidden'; return true; }
             return false;
         }
-
         function setTodayDateDisplay() {
             const today = new Date();
             document.getElementById('card-date').innerText = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`;
         }
-
         function checkAndLoadVerse() {
             const todayStr = new Date().toLocaleDateString('ko-KR');
             const savedToday = JSON.parse(localStorage.getItem(STORAGE_KEY_TODAY));
             if (savedToday && savedToday.date === todayStr) { renderVerse(savedToday.data); }
             else { pickNewDailyVerse(todayStr); }
         }
-
         function pickNewDailyVerse(dateStr) {
             if (!bibleData || bibleData.length === 0) return;
             const randomIdx = Math.floor(Math.random() * bibleData.length);
@@ -243,17 +284,15 @@
             localStorage.setItem(STORAGE_KEY_TODAY, JSON.stringify({ date: dateStr, data: selectedData }));
             saveToHistory(dateStr, selectedData);
         }
-
         function renderVerse(data) {
             document.getElementById('verse-img').src = 'images/' + data.image;
             document.getElementById('verse').innerText = data.verse;
             document.getElementById('source').innerText = data.source;
             document.getElementById('meaning').innerText = data.meaning;
         }
-
         function saveCardImage() {
             const target = document.getElementById('capture-target');
-            const btn = document.querySelector('.bottom-controls button:nth-child(2)');
+            const btn = document.querySelector('.bottom-controls button:last-child'); // 저장 버튼 선택자 수정
             const originalHTML = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 저장 중...';
             html2canvas(target, { scale: 2, backgroundColor: null, logging: false, useCORS: true })
@@ -266,7 +305,6 @@
                 alert("갤러리에 저장되었습니다.");
             }).catch(err => { console.error(err); btn.innerHTML = originalHTML; alert("저장에 실패했습니다."); });
         }
-
         function saveToHistory(dateStr, data) {
             let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
             if (!history.some(item => item.date === dateStr)) {
@@ -275,7 +313,6 @@
                 localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
             }
         }
-
         function renderHistory() {
             const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
             const listContainer = document.getElementById('history-list');
@@ -288,19 +325,13 @@
                 listContainer.appendChild(div);
             });
         }
-
         function toggleHistory(show) {
             const modal = document.getElementById('history-modal');
             if(show) { renderHistory(); modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
             else { modal.style.display = 'none'; document.body.style.overflow = ''; }
         }
 
-        // [중요 변경] window.onload 대신 이 방식을 사용하세요!
-        // 이미지가 로딩 안 되어도 일단 코드를 실행해서 화면을 보여줍니다.
-        document.addEventListener('DOMContentLoaded', init); 
-
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
-
-
