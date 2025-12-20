@@ -11,12 +11,11 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <style>
         :root { 
-            color-scheme: light; /* 다크모드 무시 설정 */
+            color-scheme: light; 
             --bg-color: #f4f1ea; 
             --accent-color: #967e76; 
             --card-border: 1px solid #e0dcd5; 
@@ -31,7 +30,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             background-color: var(--bg-color); 
             overflow-x: hidden;
-            color: #333333; /* 기본 글자색 검정 */
+            color: #333333;
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
@@ -43,9 +42,8 @@
 
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; animation: fadeInUp 0.8s ease-out; }
         
-        /* 카드 스타일 (흰 배경 고정) */
         .card { 
-            background-color: #ffffff; 
+            background: #ffffff; 
             border: var(--card-border); border-radius: 25px; padding: 35px 25px; 
             box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); 
             text-align: center; display: flex; flex-direction: column; position: relative;
@@ -62,7 +60,6 @@
 
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
         
-        /* 텍스트 색상 직접 지정 (변수 사용 X) */
         .verse-text { 
             font-family: 'Gowun Batang', serif; font-size: 1.3rem; 
             color: #333333; 
@@ -76,10 +73,9 @@
         }
 
         .bottom-controls { position: relative; z-index: 10; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; animation: fadeInUp 1s ease-out; }
-        .ctrl-btn { background: white; border: var(--card-border); color: #967e76; padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
-        .ctrl-btn:hover, .ctrl-btn:active { background: #967e76; color: white; transform: translateY(-2px); }
+        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
+        .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
-        /* 모달 스타일 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.show { opacity: 1; }
         .modal-card { background: white; width: 90%; max-width: 340px; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid #fff; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -89,24 +85,23 @@
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
         .modal-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:20px; color: #444; line-height: 1.4; }
         .modal-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; margin-bottom:20px; font-size: 1rem; outline: none; background: #fafafa; font-family: 'Pretendard'; resize: none; color: #333; }
-        .modal-btn { background: #967e76; color: white; border: none; padding: 15px; border-radius: 15px; font-size: 1rem; cursor: pointer; width: 100%; font-weight: 600; margin-top: 10px; transition: transform 0.1s; }
+        .modal-btn { background: var(--accent-color); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 1rem; cursor: pointer; width: 100%; font-weight: 600; margin-top: 10px; transition: transform 0.1s; }
 
-        /* 기록함/상세보기 */
         .history-list-container { text-align: left; width: 100%; }
         .history-item { background: #faf9f7; padding: 18px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #eee; cursor: pointer; transition: all 0.2s; position: relative; }
         .h-date { font-size: 0.75rem; color: #999; margin-bottom: 4px; display: flex; justify-content: space-between; }
         .h-tag { background: #967e76; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
         .h-verse { font-family: 'Gowun Batang'; font-size: 1rem; font-weight: 700; color: #444; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .h-source { font-size: 0.8rem; color: #967e76; margin-top: 2px; }
+        .h-source { font-size: 0.8rem; color: var(--accent-color); margin-top: 2px; }
 
         .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
         .back-btn { background: none; border: none; font-size: 1.1rem; color: #666; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; }
         .detail-img { width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .detail-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: #333; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; font-weight: 700; }
-        .detail-source { color: #967e76; font-weight: bold; margin-bottom: 25px; display: block; text-align: right; }
+        .detail-source { color: var(--accent-color); font-weight: bold; margin-bottom: 25px; display: block; text-align: right; }
         .detail-meaning { font-size: 0.95rem; color: #555; background: #f4f1ea; padding: 20px; border-radius: 15px; text-align: left; margin-bottom: 25px; line-height: 1.6; border: 1px solid #e0dcd5; }
         .detail-prayer-box { border-top: 2px dashed #e0dcd5; padding-top: 25px; text-align: left; }
-        .prayer-label { font-size: 0.9rem; color: #967e76; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .prayer-label { font-size: 0.9rem; color: var(--accent-color); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .prayer-content { font-family: 'Gowun Batang'; font-size: 1.05rem; color: #444; line-height: 1.7; white-space: pre-wrap; background: #fafafa; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
 
         #toast-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: auto; pointer-events: none; }
@@ -220,7 +215,6 @@
         let currentUserData = { name: "", history: [], today: null };
 
         function init() {
-            // [안정화 1] data.js 로드 확인
             if (typeof bibleData === 'undefined' || !bibleData) {
                 document.getElementById('verse').innerText = "데이터 오류: data.js를 확인하세요.";
                 return;
@@ -241,7 +235,6 @@
             const savedUserId = localStorage.getItem(STORAGE_KEY_USER_ID);
             const now = new Date().getTime();
 
-            // [안정화 2] 유저 아이디가 확실히 있을 때만 로딩
             if (lastAuthTime && savedUserId && (now - lastAuthTime < LOCK_TIMEOUT)) {
                 console.log("자동 로그인 성공");
                 currentUserId = savedUserId;
@@ -298,7 +291,7 @@
         }
 
         function loadUserDataFromServer() {
-            if (!currentUserId) return; // 아이디 없으면 중단
+            if (!currentUserId) return;
             
             db.ref('users/' + currentUserId).once('value').then((snapshot) => {
                 const data = snapshot.val();
@@ -342,7 +335,6 @@
             const idx = Math.floor(Math.random() * bibleData.length);
             const data = bibleData[idx];
             
-            // 데이터 갱신
             currentUserData.today = { date: dateStr, data: data };
             saveToHistory(dateStr, data);
             
@@ -391,7 +383,6 @@
             openModal('detail-modal');
         }
         
-        // [안정화 3] 캡처 기능 (다크모드 영향 최소화 + 강제 채색)
         async function shareCardImage() { 
             const target = document.getElementById('capture-target'); 
             const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
@@ -401,22 +392,24 @@
             try { 
                 const canvas = await html2canvas(target, { 
                     scale: 2, 
-                    backgroundColor: '#ffffff', // 배경 흰색 고정
+                    backgroundColor: '#ffffff', 
                     useCORS: true,
-                    // 캡처 시점에 모든 텍스트를 강제로 검은색으로 변경
+                    // [핵심 수정] 캡처 시 애니메이션 제거 + 투명도 100% 보장
                     onclone: (clonedDoc) => {
-                        const allElements = clonedDoc.querySelectorAll('*');
-                        allElements.forEach(el => {
-                            // 카드, 이미지 컨테이너, 이미지는 제외하고
-                            if (!el.classList.contains('card') && !el.classList.contains('verse-image-container') && el.tagName !== 'IMG') {
-                                // 모든 텍스트 강제 검정 (#000000)
-                                el.style.color = '#000000';
-                                el.style.webkitTextFillColor = '#000000';
-                            }
-                        });
-                        // 카드 배경은 흰색 유지
-                        const card = clonedDoc.querySelector('.card');
-                        if(card) card.style.backgroundColor = '#ffffff';
+                        const clonedCardWrapper = clonedDoc.querySelector('.card-wrapper');
+                        if (clonedCardWrapper) {
+                            // 애니메이션을 없애야 투명도 0%에서 시작하는 문제를 막음
+                            clonedCardWrapper.style.animation = 'none';
+                            clonedCardWrapper.style.opacity = '1';
+                            clonedCardWrapper.style.transform = 'none';
+                        }
+                        
+                        // 혹시 몰라 카드 본체도 설정
+                        const clonedCard = clonedDoc.querySelector('.card');
+                        if (clonedCard) {
+                            clonedCard.style.backgroundColor = '#ffffff';
+                            clonedCard.style.color = '#333333';
+                        }
                     }
                 }); 
                 
