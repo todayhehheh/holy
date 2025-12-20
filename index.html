@@ -10,7 +10,6 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <style>
-        /* [중요] 다크모드 완전 차단 및 색상 강제 */
         :root { 
             color-scheme: light; 
             --bg-color: #f4f1ea; 
@@ -30,7 +29,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             background-color: var(--bg-color); 
             overflow-x: hidden;
-            color: #333333 !important; /* 바디 전체 글자색 강제 고정 */
+            color: #333333;
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
@@ -38,43 +37,39 @@
         /* 헤더 */
         .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
         .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
-        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #3d3d3d !important; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
+        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #3d3d3d; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
         .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
         /* 카드 (캡처 대상) */
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; animation: fadeInUp 0.8s ease-out; }
         
-        /* [수정] !important를 써서 다크모드가 색상을 못 바꾸게 막음 */
         .card { 
-            background: #ffffff !important; 
+            background: #ffffff; 
             border: var(--card-border); border-radius: 25px; padding: 35px 25px; 
             box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); 
             text-align: center; display: flex; flex-direction: column; position: relative;
-            color: #333333 !important; 
+            color: #333333; 
         }
         
-        .date-label { font-size: 0.75rem; color: #aaa !important; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
+        .date-label { font-size: 0.75rem; color: #aaa; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
         
         .verse-image-container { 
             width: 100%; aspect-ratio: 1 / 1; margin-bottom: 30px; border-radius: 15px; overflow: hidden; 
-            background-color: #f8f8f8 !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
+            background-color: #f8f8f8; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
         }
         .verse-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
         .verse-text { 
             font-family: 'Gowun Batang', serif; font-size: 1.3rem; 
-            color: #3d3d3d !important; /* 강제 고정 */
+            color: #3d3d3d; 
             line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; 
         }
-        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76 !important; font-weight: 600; }
+        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76; font-weight: 600; }
         
         .meaning-box { 
-            font-size: 0.95rem; 
-            color: #555555 !important; /* 강제 고정 */
-            line-height: 1.65; 
-            background-color: #faf9f7 !important; /* 강제 고정 */
-            padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
+            font-size: 0.95rem; color: #666666; 
+            line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
         }
 
         /* 하단 버튼 */
@@ -91,7 +86,7 @@
         
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
         .modal-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:20px; color: #444; line-height: 1.4; }
-        .modal-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; margin-bottom:20px; font-size: 1rem; outline: none; background: #fafafa; font-family: 'Pretendard'; resize: none; color: #333 !important; }
+        .modal-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; margin-bottom:20px; font-size: 1rem; outline: none; background: #fafafa; font-family: 'Pretendard'; resize: none; color: #333; }
         .modal-btn { background: var(--accent-color); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 1rem; cursor: pointer; width: 100%; font-weight: 600; margin-top: 10px; transition: transform 0.1s; }
 
         /* 기록함/상세보기 */
@@ -388,22 +383,38 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
             
             try { 
-                // [핵심 수정] 캡처 시 강제로 스타일 주입 (다크모드 방지 2중 잠금)
+                // [강력한 수정] 캡처 직전에 복제된 요소들의 색상을 강제로 검은색(#000000)으로 변경
                 const canvas = await html2canvas(target, { 
                     scale: 2, 
                     backgroundColor: '#ffffff', 
                     useCORS: true,
                     onclone: (clonedDoc) => {
-                        const clonedCard = clonedDoc.querySelector('.card');
-                        if(clonedCard) {
-                            clonedCard.style.backgroundColor = '#ffffff';
-                            clonedCard.style.color = '#333333';
+                        // 1. 카드 본체 하얗게
+                        const card = clonedDoc.querySelector('.card');
+                        if (card) {
+                            card.style.backgroundColor = '#ffffff';
+                            card.style.color = '#000000';
+                        }
+
+                        // 2. 글자들 하나하나 강제로 검게 변경 (다크모드 강제 적용 무시)
+                        const texts = clonedDoc.querySelectorAll('.verse-text, .verse-source, .meaning-box, .date-label');
+                        texts.forEach(el => {
+                            el.style.color = '#000000';
+                            el.style.textShadow = 'none'; // 혹시 모를 그림자 제거
+                        });
+                        
+                        // 3. 말씀 배경박스 색상 강제
+                        const box = clonedDoc.querySelector('.meaning-box');
+                        if(box) {
+                            box.style.backgroundColor = '#f9f9f9';
+                            box.style.border = '1px solid #eeeeee';
                         }
                     }
                 }); 
                 
                 canvas.toBlob(async (blob) => { 
                     if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
+                    
                     const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
