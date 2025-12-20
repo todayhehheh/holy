@@ -32,7 +32,7 @@
         .meaning-box { font-size: 0.95rem; color: var(--text-sub); line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; }
 
         .bottom-controls { position: relative; z-index: 10; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; animation: fadeInUp 1s ease-out; }
-        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
+        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
         /* 모달 및 잠금화면 */
@@ -40,7 +40,7 @@
         .modal-overlay.show { opacity: 1; }
         .modal-card { background: white; width: 90%; max-width: 340px; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid #fff; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-card { transform: translateY(0); }
-        #name-modal { z-index: 5000; } #history-modal { z-index: 6000; } #prayer-modal, #detail-modal, #install-modal { z-index: 7000; }
+        #name-modal { z-index: 5000; } #history-modal { z-index: 6000; } #prayer-modal, #detail-modal { z-index: 7000; }
         
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
         .modal-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:20px; color: #444; line-height: 1.4; }
@@ -74,11 +74,6 @@
         .lock-icon { font-size: 3rem; margin-bottom: 20px; color: rgba(255,255,255,0.8); }
         .tag-hint { margin-top: 40px; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; color: #ddd; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-        
-        /* 앱 설치 안내 모달 스타일 */
-        .install-guide-box { background: #f8f8f8; padding: 15px; border-radius: 15px; text-align: left; margin-bottom: 15px; }
-        .install-step { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.95rem; color: #444; }
-        .install-icon { background: white; width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; border: 1px solid #ddd; color: #333; }
     </style>
 </head>
 <body>
@@ -89,7 +84,6 @@
         <div class="lock-desc">보안을 위해 접속이 제한되었습니다.<br>키링(NFC)을 다시 태그해주세요.</div>
         <div class="tag-hint"><i class="fa-solid fa-wifi"></i> NFC 태그 대기 중...</div>
     </div>
-    
     <div id="name-modal" class="modal-overlay">
         <div class="modal-card">
             <img src="images/intro_lamb.png" alt="환영합니다" class="intro-sheep-img">
@@ -98,7 +92,6 @@
             <button class="modal-btn" onclick="saveUserName()">시작하기</button>
         </div>
     </div>
-    
     <div id="prayer-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-title">오늘의 기도</div>
@@ -108,7 +101,6 @@
             <button onclick="closeModal('prayer-modal')" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer;">닫기</button>
         </div>
     </div>
-    
     <div id="history-modal" class="modal-overlay">
         <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
@@ -118,7 +110,6 @@
             <div id="history-list" class="history-list-container"></div>
         </div>
     </div>
-    
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-card" style="text-align: left;">
             <div class="detail-header">
@@ -128,42 +119,6 @@
             <div id="detail-content-area"></div>
         </div>
     </div>
-
-    <div id="install-modal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-title">앱처럼 저장하기</div>
-            <div style="font-size:0.9rem; color:#666; margin-bottom:20px;">
-                홈 화면에 추가해두시면<br>3일 동안 태그 없이도 접속 가능해요!
-            </div>
-            
-            <div id="ios-guide" class="install-guide-box" style="display:none;">
-                <div style="font-weight:bold; margin-bottom:10px; color:#333;">아이폰(Safari) 사용법</div>
-                <div class="install-step">
-                    <div class="install-icon"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
-                    <span>화면 하단 <b>공유 버튼</b> 클릭</span>
-                </div>
-                <div class="install-step">
-                    <div class="install-icon"><i class="fa-regular fa-square-plus"></i></div>
-                    <span><b>'홈 화면에 추가'</b> 선택</span>
-                </div>
-            </div>
-
-            <div id="android-guide" class="install-guide-box" style="display:none;">
-                <div style="font-weight:bold; margin-bottom:10px; color:#333;">갤럭시/안드로이드 사용법</div>
-                <div class="install-step">
-                    <div class="install-icon"><i class="fa-solid fa-ellipsis-vertical"></i></div>
-                    <span>화면 우측 상단 <b>점 3개</b> 클릭</span>
-                </div>
-                <div class="install-step">
-                    <div class="install-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
-                    <span><b>'홈 화면에 추가'</b> 또는<br><b>'앱 설치'</b> 선택</span>
-                </div>
-            </div>
-
-            <button onclick="closeModal('install-modal')" style="background:#eee; color:#666; border:none; padding:12px; border-radius:12px; width:100%; margin-top:10px; font-weight:600; cursor:pointer;">닫기</button>
-        </div>
-    </div>
-
     <div class="header-area">
         <div class="greeting-sub" id="greeting-time">Good Morning</div>
         <div class="greeting-main" id="greeting-msg">오늘 하루도<br>평안하세요</div>
@@ -190,9 +145,6 @@
         </button>
         <button class="ctrl-btn" onclick="openPrayerModal()">
             <i class="fa-solid fa-pen-nib"></i> 오늘의 기도
-        </button>
-        <button class="ctrl-btn" onclick="showInstallGuide()">
-            <i class="fa-solid fa-download"></i> 앱으로 저장
         </button>
     </div>
 
@@ -247,7 +199,6 @@
 
                 const remainingTime = LOCK_TIMEOUT - (now - lastAuthTime);
                 setTimeout(() => {
-                    // [수정] 안내 멘트 간결화
                     showLockScreen("인증이 만료되었습니다.<br>키링을 다시 태그해주세요.");
                 }, remainingTime);
             } else {
@@ -292,21 +243,6 @@
             document.body.style.overflow = 'hidden';
             if(desc) desc.innerHTML = message;
             if(hint) hint.style.display = 'none';
-        }
-
-        // [NEW] 기기별 앱 설치 가이드
-        function showInstallGuide() {
-            const ua = navigator.userAgent.toLowerCase();
-            const isIOS = /iphone|ipad|ipod/.test(ua);
-            
-            if (isIOS) {
-                document.getElementById('ios-guide').style.display = 'block';
-                document.getElementById('android-guide').style.display = 'none';
-            } else {
-                document.getElementById('ios-guide').style.display = 'none';
-                document.getElementById('android-guide').style.display = 'block';
-            }
-            openModal('install-modal');
         }
 
         function loadUserDataFromServer() {
