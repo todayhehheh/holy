@@ -35,10 +35,6 @@
             from { opacity: 0; transform: translate3d(0, 20px, 0); }
             to { opacity: 1; transform: translate3d(0, 0, 0); }
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
 
         /* 인사 영역 */
         .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
@@ -72,24 +68,17 @@
         .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
-        /* [업그레이드] 모달 스타일 계층 구조 (Z-Index 중요) */
-        /* 1층: 메인 화면 */
-        /* 2층: 이름 입력 (5000) */
-        /* 3층: 기록함 리스트 (6000) */
-        /* 4층: 기도 작성 & 상세 보기 (7000) */
-        /* 5층: 잠금 화면 (9999) */
-        /* 6층: 토스트 알림 (10000) */
-
+        /* 모달 스타일 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; }
-        .modal-overlay.show { opacity: 1; } /* JS로 클래스 추가 시 페이드인 */
+        .modal-overlay.show { opacity: 1; }
 
         .modal-card { background: white; width: 90%; max-width: 340px; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid #fff; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .modal-overlay.show .modal-card { transform: translateY(0); } /* 팝업 효과 */
+        .modal-overlay.show .modal-card { transform: translateY(0); }
         
-        /* 모달별 Z-Index 설정 */
+        /* 모달 Z-Index */
         #name-modal { z-index: 5000; }
         #history-modal { z-index: 6000; }
-        #prayer-modal, #detail-modal { z-index: 7000; } /* 상세화면이 기록함보다 위에 뜸 */
+        #prayer-modal, #detail-modal { z-index: 7000; }
 
         /* 모달 내부 요소 */
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
@@ -119,7 +108,7 @@
         .prayer-label { font-size: 0.9rem; color: var(--accent-color); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .prayer-content { font-family: 'Gowun Batang'; font-size: 1.05rem; color: #444; line-height: 1.7; white-space: pre-wrap; background: #fafafa; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
 
-        /* [NEW] 토스트 알림 (이쁜 팝업) */
+        /* 토스트 알림 */
         #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; pointer-events: none; }
         .toast { background: rgba(40, 40, 40, 0.9); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.95rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; font-weight: 500; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -212,74 +201,146 @@
         </button>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+
     <script src="data.js"></script>
     <script>
-        const STORAGE_KEY_HISTORY = 'bibleHistory_v7';
-        const STORAGE_KEY_TODAY = 'bibleToday_v7';
-        const STORAGE_KEY_AUTH = 'bibleAuthTime';
-        const STORAGE_KEY_NAME = 'bibleUserName';
+        // ============================================================
+        // [1] 파이어베이스 설정 (제공해주신 API 키 적용됨)
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTphxbqw8AOc6x_OTOZN9DqeQsZ5tdA3E",
+            authDomain: "holy-fb987.firebaseapp.com",
+            databaseURL: "https://holy-fb987-default-rtdb.firebaseio.com",
+            projectId: "holy-fb987",
+            storageBucket: "holy-fb987.firebasestorage.app",
+            messagingSenderId: "145438518066",
+            appId: "1:145438518066:web:54590bad7303afc7b0052b",
+            measurementId: "G-CGD01LLDZ8"
+        };
+
+        // 파이어베이스 초기화
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const analytics = firebase.analytics(); // 애널리틱스 활성화
+
+        // ============================================================
+        // [2] 전역 변수 설정
+        // ============================================================
         const LOCK_TIMEOUT = 60 * 1000; 
+        const STORAGE_KEY_AUTH = 'bibleAuthTime'; // 잠금 시간 (로컬)
+        
+        let currentUserId = null; // 현재 접속한 태그 ID
+        let currentUserData = { name: "", history: [], today: null }; // 서버 데이터
 
-        let currentData = null;
-
+        // ============================================================
+        // [3] 초기화 및 핵심 로직
+        // ============================================================
         function init() {
-            // [중요] 배포 시 주석 해제하세요
+            // [배포 시 주석 해제]
             // if (checkLockStatus()) return; 
 
-            checkUserName();
+            const urlParams = new URLSearchParams(window.location.search);
+            const tagId = urlParams.get('tag');
+
+            if (tagId) {
+                currentUserId = tagId; 
+                loadUserDataFromServer(); 
+            } else {
+                // 태그 없이 접속 시 (개발 중엔 테스트 계정, 배포 시엔 잠금 처리됨)
+                currentUserId = "test_user_001"; 
+                loadUserDataFromServer();
+            }
+
             setTodayDateDisplay();
-            checkAndLoadVerse();
             setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
         }
 
-        // --- [NEW] 토스트 알림 함수 (이쁜 팝업) ---
-        function showToast(message, icon = "fa-check") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+        // --- 서버 통신 함수 ---
+        function loadUserDataFromServer() {
+            const userRef = db.ref('users/' + currentUserId);
             
-            container.appendChild(toast);
-            
-            // 애니메이션을 위해 약간의 딜레이 후 클래스 추가
-            requestAnimationFrame(() => { toast.classList.add('show'); });
-
-            // 2.5초 후 제거
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => { toast.remove(); }, 300);
-            }, 2500);
-        }
-
-        // --- [NEW] 모달 제어 함수 (애니메이션 적용) ---
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.style.display = 'flex';
-            // 페이드인 효과를 위해 display 설정 후 약간의 딜레이
-            setTimeout(() => { modal.classList.add('show'); }, 10);
-            document.body.style.overflow = 'hidden'; // 스크롤 잠금
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            modal.classList.remove('show');
-            setTimeout(() => { 
-                modal.style.display = 'none'; 
-                // 모든 모달이 닫혔을 때만 스크롤 잠금 해제
-                if(!document.querySelector('.modal-overlay.show')) {
-                    document.body.style.overflow = ''; 
+            userRef.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                
+                if (data) {
+                    currentUserData = data;
+                    if (!currentUserData.history) currentUserData.history = [];
+                    
+                    // 기존 유저: 인사 후 오늘 말씀 로딩
+                    setGreeting(currentUserData.name);
+                    checkAndLoadVerse(); 
+                } else {
+                    // 신규 유저: 이름 입력창 띄우기
+                    setTimeout(() => openModal('name-modal'), 500);
                 }
-            }, 300); // 애니메이션 시간(0.3s)만큼 대기
+            });
         }
 
-        // --- 기도 작성 로직 ---
-        function openPrayerModal() {
+        function saveUserDataToServer() {
+            if (!currentUserId) return;
+            db.ref('users/' + currentUserId).set(currentUserData)
+                .then(() => { console.log("서버 저장 성공"); })
+                .catch((error) => { console.error("서버 저장 실패", error); showToast("인터넷 연결을 확인해주세요", "fa-times"); });
+        }
+
+        // --- 기능 함수들 ---
+        function checkUserName() {
+            // 서버 로딩 함수에서 처리하므로 비워둠
+        }
+
+        function saveUserName() {
+            const input = document.getElementById('user-name-input');
+            const name = input.value.trim();
+            if (name.length > 0) {
+                currentUserData.name = name;
+                saveUserDataToServer();
+                
+                closeModal('name-modal');
+                setGreeting(name);
+                checkAndLoadVerse(); // 이름 저장 후 말씀 로딩
+            } else { showToast("이름을 입력해주세요.", "fa-exclamation"); }
+        }
+
+        function checkAndLoadVerse() {
             const todayStr = new Date().toLocaleDateString('ko-KR');
-            const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
-            const todayItem = history.find(item => item.date === todayStr);
-            const textarea = document.getElementById('prayer-input');
-            textarea.value = (todayItem && todayItem.prayer) ? todayItem.prayer : "";
-            openModal('prayer-modal');
+            
+            // 서버에 오늘 날짜 말씀이 이미 저장되어 있으면 그것을 보여줌 (하루 고정)
+            if (currentUserData.today && currentUserData.today.date === todayStr) {
+                currentData = currentUserData.today.data;
+                renderVerse(currentData);
+            } else {
+                pickNewDailyVerse(todayStr);
+            }
+        }
+
+        function pickNewDailyVerse(dateStr) {
+            if (!bibleData || bibleData.length === 0) return;
+            const randomIdx = Math.floor(Math.random() * bibleData.length);
+            const selectedData = bibleData[randomIdx];
+            currentData = selectedData;
+
+            // 데이터 갱신
+            currentUserData.today = { date: dateStr, data: selectedData };
+            
+            // 기록함 추가
+            saveToHistory(dateStr, selectedData);
+            
+            renderVerse(selectedData);
+            saveUserDataToServer(); // 서버 저장
+        }
+
+        function saveToHistory(dateStr, data) {
+            // 중복 방지
+            if (!currentUserData.history.some(item => item.date === dateStr)) {
+                currentUserData.history.unshift({
+                    date: dateStr, verse: data.verse, source: data.source,
+                    image: data.image, meaning: data.meaning, prayer: ""
+                });
+                if (currentUserData.history.length > 50) currentUserData.history.pop();
+            }
         }
 
         function savePrayer() {
@@ -287,30 +348,29 @@
             if (!prayerText) { showToast("내용을 입력해주세요.", "fa-exclamation"); return; }
 
             const todayStr = new Date().toLocaleDateString('ko-KR');
-            let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
-            const index = history.findIndex(item => item.date === todayStr);
+            const index = currentUserData.history.findIndex(item => item.date === todayStr);
             
             if (index !== -1) {
-                history[index].prayer = prayerText;
+                currentUserData.history[index].prayer = prayerText;
+                saveUserDataToServer(); // 기도 내용 서버 저장
+                
+                closeModal('prayer-modal');
+                setTimeout(() => { showToast("기도가 저장되었습니다."); }, 300);
             } else {
-                if(currentData) {
-                    history.unshift({
-                        date: todayStr, verse: currentData.verse, source: currentData.source,
-                        image: currentData.image, meaning: currentData.meaning, prayer: prayerText
-                    });
-                }
+                showToast("오늘의 말씀을 먼저 받아주세요.", "fa-times");
             }
-            
-            localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-            
-            // [개선] alert 대신 토스트 알림 사용 + 모달 닫기
-            closeModal('prayer-modal');
-            setTimeout(() => { showToast("기도가 저장되었습니다."); }, 300);
         }
 
-        // --- 기록함 및 상세 보기 로직 ---
+        function openPrayerModal() {
+            const todayStr = new Date().toLocaleDateString('ko-KR');
+            const todayItem = currentUserData.history.find(item => item.date === todayStr);
+            const textarea = document.getElementById('prayer-input');
+            textarea.value = (todayItem && todayItem.prayer) ? todayItem.prayer : "";
+            openModal('prayer-modal');
+        }
+
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
+            const history = currentUserData.history || [];
             const listContainer = document.getElementById('history-list');
             listContainer.innerHTML = '';
             
@@ -338,8 +398,7 @@
         }
 
         function showHistoryDetail(index) {
-            const history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
-            const item = history[index];
+            const item = currentUserData.history[index];
             if(!item) return;
 
             const contentArea = document.getElementById('detail-content-area');
@@ -358,136 +417,47 @@
                     ${prayerHtml}
                 </div>
             `;
-            
-            // [중요] 기록함은 닫지 않고 그 위에 상세창을 띄웁니다.
             openModal('detail-modal');
         }
 
-        // [개선] 상세창을 닫으면 -> 기록함 리스트는 그대로 보임 (뒤로가기 효과)
-        function closeDetailModal() {
-            closeModal('detail-modal');
-            // 기록함 모달이 닫혀있으면 다시 열어준다 (안정성 확보)
-            // setTimeout(() => {
-            //    const historyModal = document.getElementById('history-modal');
-            //    if(historyModal.style.display !== 'flex') openModal('history-modal');
-            // }, 300);
+        // --- 유틸리티 및 UI 함수 ---
+        function showToast(message, icon = "fa-check") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => { toast.classList.add('show'); });
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => { toast.remove(); }, 300); }, 2500);
+        }
+        function openModal(modalId) { const modal = document.getElementById(modalId); modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10); document.body.style.overflow = 'hidden'; }
+        function closeModal(modalId) { const modal = document.getElementById(modalId); modal.classList.remove('show'); setTimeout(() => { modal.style.display = 'none'; if(!document.querySelector('.modal-overlay.show')) { document.body.style.overflow = ''; } }, 300); }
+        function closeDetailModal() { closeModal('detail-modal'); }
+        function renderVerse(data) { document.getElementById('verse-img').src = 'images/' + data.image; document.getElementById('verse').innerText = data.verse; document.getElementById('source').innerText = data.source; document.getElementById('meaning').innerText = data.meaning; }
+        
+        async function shareCardImage() { 
+            const target = document.getElementById('capture-target'); 
+            const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
+            const originalHTML = btn.innerHTML; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
+            try { 
+                const canvas = await html2canvas(target, { scale: 2, backgroundColor: null, useCORS: true }); 
+                canvas.toBlob(async (blob) => { 
+                    if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
+                    const file = new File([blob], "daily_verse.png", { type: "image/png" }); 
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
+                        try { await navigator.share({ files: [file], title: '오늘의 묵상', text: '오늘 저에게 주신 말씀이에요.' }); } catch (err) {} 
+                    } else { showToast("공유 미지원 브라우저입니다.", "fa-times"); } 
+                    btn.innerHTML = originalHTML; 
+                }); 
+            } catch (err) { console.error(err); btn.innerHTML = originalHTML; showToast("오류가 발생했습니다.", "fa-times"); } 
         }
 
-        // --- 기존 로직들 (데이터 로딩, 공유 등) ---
-        function checkAndLoadVerse() {
-            const todayStr = new Date().toLocaleDateString('ko-KR');
-            const savedToday = JSON.parse(localStorage.getItem(STORAGE_KEY_TODAY));
-            if (savedToday && savedToday.date === todayStr) { 
-                currentData = savedToday.data;
-                renderVerse(savedToday.data); 
-                ensureHistoryData(todayStr, savedToday.data);
-            } else { 
-                pickNewDailyVerse(todayStr); 
-            }
-        }
-        function pickNewDailyVerse(dateStr) {
-            if (!bibleData || bibleData.length === 0) return;
-            const randomIdx = Math.floor(Math.random() * bibleData.length);
-            const selectedData = bibleData[randomIdx];
-            currentData = selectedData;
-            renderVerse(selectedData);
-            localStorage.setItem(STORAGE_KEY_TODAY, JSON.stringify({ date: dateStr, data: selectedData }));
-            saveToHistory(dateStr, selectedData);
-        }
-        function saveToHistory(dateStr, data) {
-            let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
-            if (!history.some(item => item.date === dateStr)) {
-                history.unshift({ date: dateStr, verse: data.verse, source: data.source, image: data.image, meaning: data.meaning, prayer: "" });
-                if (history.length > 50) history.pop();
-                localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-            }
-        }
-        function ensureHistoryData(dateStr, data) {
-            let history = JSON.parse(localStorage.getItem(STORAGE_KEY_HISTORY)) || [];
-            const index = history.findIndex(item => item.date === dateStr);
-            if (index !== -1) {
-                const item = history[index];
-                if (!item.image || !item.meaning) {
-                    item.image = data.image; item.meaning = data.meaning;
-                    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-                }
-            } else { saveToHistory(dateStr, data); }
-        }
-        function renderVerse(data) {
-            document.getElementById('verse-img').src = 'images/' + data.image;
-            document.getElementById('verse').innerText = data.verse;
-            document.getElementById('source').innerText = data.source;
-            document.getElementById('meaning').innerText = data.meaning;
-        }
-        async function shareCardImage() {
-            const target = document.getElementById('capture-target');
-            const btn = document.querySelector('.bottom-controls button:nth-child(2)');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...';
-            try {
-                const canvas = await html2canvas(target, { scale: 2, backgroundColor: null, useCORS: true });
-                canvas.toBlob(async (blob) => {
-                    if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; }
-                    const file = new File([blob], "daily_verse.png", { type: "image/png" });
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try { await navigator.share({ files: [file], title: '오늘의 묵상', text: '오늘 저에게 주신 말씀이에요.' }); } catch (err) {}
-                    } else { showToast("공유 미지원 브라우저입니다.", "fa-times"); }
-                    btn.innerHTML = originalHTML;
-                });
-            } catch (err) { console.error(err); btn.innerHTML = originalHTML; showToast("오류가 발생했습니다.", "fa-times"); }
-        }
-        function getGreetingMessage(timeSlot, nameSpan) {
-            const messages = {
-                morning: [`${nameSpan}새로운 하루의 시작,\n당신의 아침을 응원해요.`, `${nameSpan}오늘도 주님 안에서\n기쁨 가득한 하루 되세요.`, `${nameSpan}상쾌한 아침,\n감사로 시작해 볼까요?`],
-                afternoon: [`${nameSpan}분주한 일상 속,\n잠시 쉼표를 찍어보세요.`, `${nameSpan}나른한 오후,\n말씀으로 힘을 얻으세요.`, `${nameSpan}점심 맛있게 드셨나요?\n오후도 화이팅!`],
-                evening: [`${nameSpan}오늘 하루 수고 많았어요.\n이제 편안히 쉬세요.`, `${nameSpan}지친 하루의 끝,\n주님의 위로가 함께하길.`, `${nameSpan}오늘도 잘 버텨주어\n고마워요.`],
-                night: [`${nameSpan}고요한 밤,\n깊은 위로가 함께하기를.`, `${nameSpan}내일의 걱정은 맡기고\n편안히 주무세요.`, `${nameSpan}오늘 하루도\n당신은 충분히 잘했어요.`]
-            };
-            const msgList = messages[timeSlot];
-            const todayDate = new Date().getDate(); 
-            return msgList[todayDate % msgList.length];
-        }
-        function setGreeting(name) {
-            const hour = new Date().getHours();
-            const subEl = document.getElementById('greeting-time');
-            const msgEl = document.getElementById('greeting-msg');
-            const nameSpan = name ? `<span class="user-name-highlight">${name}님</span>, ` : '';
-            let timeSlot = ""; let subText = "";
-            if (hour >= 5 && hour < 11) { subText = "Morning Prayer"; timeSlot = "morning"; } 
-            else if (hour >= 11 && hour < 17) { subText = "Afternoon Break"; timeSlot = "afternoon"; } 
-            else if (hour >= 17 && hour < 22) { subText = "Evening Comfort"; timeSlot = "evening"; } 
-            else { subText = "Silent Night"; timeSlot = "night"; }
-            subEl.innerText = subText;
-            msgEl.innerHTML = getGreetingMessage(timeSlot, nameSpan);
-        }
-        function checkUserName() {
-            const savedName = localStorage.getItem(STORAGE_KEY_NAME);
-            if (!savedName) { setTimeout(() => openModal('name-modal'), 500); } 
-            else { setGreeting(savedName); }
-        }
-        function saveUserName() {
-            const input = document.getElementById('user-name-input');
-            const name = input.value.trim();
-            if (name.length > 0) {
-                localStorage.setItem(STORAGE_KEY_NAME, name);
-                closeModal('name-modal');
-                setGreeting(name);
-            } else { showToast("이름을 입력해주세요.", "fa-exclamation"); }
-        }
-        function checkLockStatus() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const authKey = urlParams.get('tag');
-            const lockScreen = document.getElementById('lock-screen');
-            const now = new Date().getTime();
-            if (authKey) { localStorage.setItem(STORAGE_KEY_AUTH, now); lockScreen.style.display = 'none'; return false; }
-            const lastAuthTime = localStorage.getItem(STORAGE_KEY_AUTH);
-            if (!lastAuthTime || (now - lastAuthTime > LOCK_TIMEOUT)) { lockScreen.style.display = 'flex'; document.body.style.overflow = 'hidden'; return true; }
-            return false;
-        }
-        function setTodayDateDisplay() {
-            const today = new Date();
-            document.getElementById('card-date').innerText = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`;
-        }
+        function getGreetingMessage(timeSlot, nameSpan) { const messages = { morning: [`${nameSpan}새로운 하루의 시작,\n당신의 아침을 응원해요.`, `${nameSpan}오늘도 주님 안에서\n기쁨 가득한 하루 되세요.`, `${nameSpan}상쾌한 아침,\n감사로 시작해 볼까요?`], afternoon: [`${nameSpan}분주한 일상 속,\n잠시 쉼표를 찍어보세요.`, `${nameSpan}나른한 오후,\n말씀으로 힘을 얻으세요.`, `${nameSpan}점심 맛있게 드셨나요?\n오후도 화이팅!`], evening: [`${nameSpan}오늘 하루 수고 많았어요.\n이제 편안히 쉬세요.`, `${nameSpan}지친 하루의 끝,\n주님의 위로가 함께하길.`, `${nameSpan}오늘도 잘 버텨주어\n고마워요.`], night: [`${nameSpan}고요한 밤,\n깊은 위로가 함께하기를.`, `${nameSpan}내일의 걱정은 맡기고\n편안히 주무세요.`, `${nameSpan}오늘 하루도\n당신은 충분히 잘했어요.`] }; const msgList = messages[timeSlot]; const todayDate = new Date().getDate(); return msgList[todayDate % msgList.length]; }
+        function setGreeting(name) { const hour = new Date().getHours(); const subEl = document.getElementById('greeting-time'); const msgEl = document.getElementById('greeting-msg'); const nameSpan = name ? `<span class="user-name-highlight">${name}님</span>, ` : ''; let timeSlot = ""; let subText = ""; if (hour >= 5 && hour < 11) { subText = "Morning Prayer"; timeSlot = "morning"; } else if (hour >= 11 && hour < 17) { subText = "Afternoon Break"; timeSlot = "afternoon"; } else if (hour >= 17 && hour < 22) { subText = "Evening Comfort"; timeSlot = "evening"; } else { subText = "Silent Night"; timeSlot = "night"; } subEl.innerText = subText; msgEl.innerHTML = getGreetingMessage(timeSlot, nameSpan); }
+        function checkLockStatus() { const urlParams = new URLSearchParams(window.location.search); const authKey = urlParams.get('tag'); const lockScreen = document.getElementById('lock-screen'); const now = new Date().getTime(); if (authKey) { localStorage.setItem(STORAGE_KEY_AUTH, now); lockScreen.style.display = 'none'; return false; } const lastAuthTime = localStorage.getItem(STORAGE_KEY_AUTH); if (!lastAuthTime || (now - lastAuthTime > LOCK_TIMEOUT)) { lockScreen.style.display = 'flex'; document.body.style.overflow = 'hidden'; return true; } return false; }
+        function setTodayDateDisplay() { const today = new Date(); document.getElementById('card-date').innerText = `${today.getFullYear()}. ${today.getMonth() + 1}. ${today.getDate()}`; }
+
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
