@@ -10,7 +10,7 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <style>
-        /* [중요] 다크모드 강제 해제 (무조건 라이트모드로 고정) */
+        /* [중요] 다크모드 완전 차단 및 색상 강제 */
         :root { 
             color-scheme: light; 
             --bg-color: #f4f1ea; 
@@ -30,8 +30,7 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             background-color: var(--bg-color); 
             overflow-x: hidden;
-            /* 텍스트 색상 강제 고정 */
-            color: var(--text-main);
+            color: #333333 !important; /* 바디 전체 글자색 강제 고정 */
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
@@ -39,40 +38,43 @@
         /* 헤더 */
         .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
         .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
-        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main); line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
+        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #3d3d3d !important; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
         .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
         /* 카드 (캡처 대상) */
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; animation: fadeInUp 0.8s ease-out; }
         
-        /* [수정] 카드 내부 색상 강제 지정 (캡처 시 흐림 방지) */
+        /* [수정] !important를 써서 다크모드가 색상을 못 바꾸게 막음 */
         .card { 
-            background: #ffffff; /* 흰색 고정 */
+            background: #ffffff !important; 
             border: var(--card-border); border-radius: 25px; padding: 35px 25px; 
             box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); 
             text-align: center; display: flex; flex-direction: column; position: relative;
-            color: #333333; /* 글자색 진한 회색 고정 */
+            color: #333333 !important; 
         }
         
-        .date-label { font-size: 0.75rem; color: #aaa; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
+        .date-label { font-size: 0.75rem; color: #aaa !important; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
         
         .verse-image-container { 
             width: 100%; aspect-ratio: 1 / 1; margin-bottom: 30px; border-radius: 15px; overflow: hidden; 
-            background-color: #f8f8f8; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
+            background-color: #f8f8f8 !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
         }
         .verse-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
         .verse-text { 
             font-family: 'Gowun Batang', serif; font-size: 1.3rem; 
-            color: #3d3d3d; /* 색상 강제 */
+            color: #3d3d3d !important; /* 강제 고정 */
             line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; 
         }
-        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: var(--accent-color); font-weight: 600; }
+        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76 !important; font-weight: 600; }
         
         .meaning-box { 
-            font-size: 0.95rem; color: #666666; /* 색상 강제 */
-            line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
+            font-size: 0.95rem; 
+            color: #555555 !important; /* 강제 고정 */
+            line-height: 1.65; 
+            background-color: #faf9f7 !important; /* 강제 고정 */
+            padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
         }
 
         /* 하단 버튼 */
@@ -80,18 +82,16 @@
         .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
-        /* 모달 공통 */
+        /* 모달 및 공통 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.show { opacity: 1; }
         .modal-card { background: white; width: 90%; max-width: 340px; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid #fff; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-card { transform: translateY(0); }
-        
         #name-modal { z-index: 5000; } #history-modal { z-index: 6000; } #prayer-modal, #detail-modal { z-index: 7000; }
         
-        /* 모달 내부 요소 */
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
         .modal-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:20px; color: #444; line-height: 1.4; }
-        .modal-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; margin-bottom:20px; font-size: 1rem; outline: none; background: #fafafa; font-family: 'Pretendard'; resize: none; color: #333; }
+        .modal-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; margin-bottom:20px; font-size: 1rem; outline: none; background: #fafafa; font-family: 'Pretendard'; resize: none; color: #333 !important; }
         .modal-btn { background: var(--accent-color); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 1rem; cursor: pointer; width: 100%; font-weight: 600; margin-top: 10px; transition: transform 0.1s; }
 
         /* 기록함/상세보기 */
@@ -112,7 +112,7 @@
         .prayer-label { font-size: 0.9rem; color: var(--accent-color); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .prayer-content { font-family: 'Gowun Batang'; font-size: 1.05rem; color: #444; line-height: 1.7; white-space: pre-wrap; background: #fafafa; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
 
-        /* 토스트 메시지 (중앙 정렬) */
+        /* 토스트 메시지 */
         #toast-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: auto; pointer-events: none; }
         .toast { background: rgba(0, 0, 0, 0.85); color: white; padding: 15px 30px; border-radius: 50px; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; font-weight: 500; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -388,12 +388,22 @@
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
             
             try { 
-                // [수정] JPEG 포맷 사용 + 흰 배경 강제 + CORS 활성화
-                const canvas = await html2canvas(target, { scale: 2, backgroundColor: '#ffffff', useCORS: true }); 
+                // [핵심 수정] 캡처 시 강제로 스타일 주입 (다크모드 방지 2중 잠금)
+                const canvas = await html2canvas(target, { 
+                    scale: 2, 
+                    backgroundColor: '#ffffff', 
+                    useCORS: true,
+                    onclone: (clonedDoc) => {
+                        const clonedCard = clonedDoc.querySelector('.card');
+                        if(clonedCard) {
+                            clonedCard.style.backgroundColor = '#ffffff';
+                            clonedCard.style.color = '#333333';
+                        }
+                    }
+                }); 
+                
                 canvas.toBlob(async (blob) => { 
                     if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
-                    
-                    // [수정] JPG 파일로 공유 (호환성 개선)
                     const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
@@ -401,7 +411,6 @@
                             await navigator.share({ files: [file], title: '오늘의 묵상', text: '오늘 저에게 주신 말씀이에요.' }); 
                         } catch (err) { console.log("공유 취소됨"); } 
                     } else { 
-                        // PC 등 미지원 시 다운로드
                         const link = document.createElement('a');
                         link.download = '오늘의묵상.jpg';
                         link.href = canvas.toDataURL('image/jpeg');
@@ -409,7 +418,7 @@
                         showToast("이미지가 저장되었습니다."); 
                     } 
                     btn.innerHTML = originalHTML; 
-                }, 'image/jpeg', 0.9); // 퀄리티 0.9
+                }, 'image/jpeg', 0.9); 
             } catch (err) { console.error(err); btn.innerHTML = originalHTML; showToast("오류가 발생했습니다.", "fa-times"); } 
         }
 
