@@ -18,9 +18,6 @@
         :root { 
             color-scheme: light; 
             --bg-color: #f4f1ea; 
-            --card-bg: #ffffff; 
-            --text-main: #333333; 
-            --text-sub: #666666; 
             --accent-color: #967e76; 
             --card-border: 1px solid #e0dcd5; 
         }
@@ -34,50 +31,79 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             background-color: var(--bg-color); 
             overflow-x: hidden;
-            /* 기본적으로 검은 글씨 강제 */
             color: #333333 !important;
-            -webkit-text-fill-color: #333333 !important;
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 
         .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
-        .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
-        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #3d3d3d !important; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
-        .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
+        .greeting-sub { font-size: 0.9rem; color: #967e76; margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
+        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #333333; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
+        .user-name-highlight { color: #967e76; border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; animation: fadeInUp 0.8s ease-out; }
         
         .card { 
-            background: #ffffff !important; 
+            background: #ffffff; 
             border: var(--card-border); border-radius: 25px; padding: 35px 25px; 
             box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); 
             text-align: center; display: flex; flex-direction: column; position: relative;
-            color: #333333 !important; 
+            color: #333333; /* 기본 색상 */
         }
         
-        .date-label { font-size: 0.75rem; color: #aaaaaa !important; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
+        .date-label { font-size: 0.75rem; color: #aaaaaa; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
         
         .verse-image-container { 
             width: 100%; aspect-ratio: 1 / 1; margin-bottom: 30px; border-radius: 15px; overflow: hidden; 
-            background-color: #f8f8f8 !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
+            background-color: #f8f8f8; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
         }
         .verse-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
+        
+        /* [중요] 변수 사용 안 함. 직접 색상 지정 */
         .verse-text { 
             font-family: 'Gowun Batang', serif; font-size: 1.3rem; 
-            color: #333333 !important; 
+            color: #333333; 
             line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; 
-            -webkit-text-fill-color: #333333 !important; /* 아이폰/크롬 강제 색상 */
         }
-        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76 !important; font-weight: 600; -webkit-text-fill-color: #967e76 !important; }
+        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76; font-weight: 600; }
         
         .meaning-box { 
-            font-size: 0.95rem; color: #555555 !important; 
-            line-height: 1.65; background-color: #faf9f7 !important; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
-            -webkit-text-fill-color: #555555 !important;
+            font-size: 0.95rem; color: #555555; 
+            line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
         }
+
+        /* [필살기] 캡처 시 강제 적용될 '잉크 모드' 스타일 
+           이 클래스가 붙으면 모든 자식 요소의 색상을 강제로 덮어씁니다.
+        */
+        .force-ink-mode, 
+        .force-ink-mode * {
+            color: #000000 !important;
+            text-shadow: none !important;
+            -webkit-text-fill-color: #000000 !important;
+        }
+        /* 예외: 이미지는 색상 변경 안 함 */
+        .force-ink-mode img {
+            color: transparent !important;
+        }
+        /* 예외: 카드는 흰 배경 유지 */
+        .force-ink-mode.card {
+            background-color: #ffffff !important;
+            border: 1px solid #e0dcd5 !important;
+        }
+        /* 예외: 말씀 박스 배경 유지 */
+        .force-ink-mode .meaning-box {
+            background-color: #f9f9f9 !important;
+            border: 1px solid #eeeeee !important;
+            color: #333333 !important; /* 박스 글씨는 너무 진하지 않게 */
+            -webkit-text-fill-color: #333333 !important;
+        }
+        .force-ink-mode .verse-source {
+            color: #967e76 !important; /* 출처 색상 유지 시도 */
+            -webkit-text-fill-color: #967e76 !important;
+        }
+
 
         .bottom-controls { position: relative; z-index: 10; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; animation: fadeInUp 1s ease-out; }
         .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
@@ -168,6 +194,7 @@
         <div class="greeting-sub" id="greeting-time">Good Morning</div>
         <div class="greeting-main" id="greeting-msg">오늘 하루도<br>평안하세요</div>
     </div>
+    
     <div class="card-wrapper" id="capture-target">
         <div class="card">
             <div class="date-label" id="card-date">TODAY</div>
@@ -181,6 +208,7 @@
             <div class="meaning-box" id="meaning"></div>
         </div>
     </div>
+    
     <div class="bottom-controls">
         <button class="ctrl-btn" onclick="openModal('history-modal'); renderHistory();">
             <i class="fa-solid fa-book-open"></i> 기록함
@@ -345,108 +373,4 @@
         function savePrayer() {
             const txt = document.getElementById('prayer-input').value.trim();
             if (!txt) { showToast("내용을 입력해주세요.", "fa-exclamation"); return; }
-            const todayStr = new Date().toLocaleDateString('ko-KR');
-            const idx = currentUserData.history.findIndex(item => item.date === todayStr);
-            if (idx !== -1) {
-                currentUserData.history[idx].prayer = txt;
-                saveUserDataToServer();
-                closeModal('prayer-modal');
-                setTimeout(() => { showToast("기도가 저장되었습니다."); }, 300);
-            } else { showToast("말씀을 먼저 받아주세요.", "fa-times"); }
-        }
-
-        function openPrayerModal() {
-            const todayStr = new Date().toLocaleDateString('ko-KR');
-            const item = currentUserData.history.find(i => i.date === todayStr);
-            document.getElementById('prayer-input').value = (item && item.prayer) ? item.prayer : "";
-            openModal('prayer-modal');
-        }
-        function renderHistory() {
-            const list = document.getElementById('history-list'); list.innerHTML = '';
-            if(!currentUserData.history || currentUserData.history.length === 0) { list.innerHTML = "<div style='text-align:center; color:#aaa; margin-top:50px;'>기록이 없습니다.</div>"; return; }
-            currentUserData.history.forEach((item, idx) => {
-                const div = document.createElement('div'); div.className = 'history-item'; div.onclick = () => showHistoryDetail(idx);
-                const tag = item.prayer ? `<span class="h-tag"><i class="fa-solid fa-check"></i> 기도완료</span>` : ``;
-                div.innerHTML = `<div class="h-date"><span>${item.date}</span> ${tag}</div><div class="h-verse">${item.verse.split('\n')[0]}...</div><div class="h-source">${item.source}</div>`;
-                list.appendChild(div);
-            });
-        }
-        function showHistoryDetail(idx) {
-            const item = currentUserData.history[idx]; if(!item) return;
-            const html = item.prayer ? `<div class="prayer-content">${item.prayer.replace(/\n/g, '<br>')}</div>` : `<div style="color:#aaa; font-size:0.9rem; text-align:center; padding:20px;">기도가 없습니다.</div>`;
-            document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div><div class="detail-prayer-box"><span class="prayer-label"><i class="fa-solid fa-pen-nib"></i> 나의 기도</span>${html}</div>`;
-            openModal('detail-modal');
-        }
-        
-        async function shareCardImage() { 
-            const target = document.getElementById('capture-target'); 
-            const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
-            const originalHTML = btn.innerHTML; 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
-            
-            try { 
-                const canvas = await html2canvas(target, { 
-                    scale: 2, 
-                    backgroundColor: '#ffffff', 
-                    useCORS: true,
-                    // [최종 해결책] 캡처 시점에 모든 요소를 강제로 검은색으로 변경
-                    onclone: (clonedDoc) => {
-                        const allElements = clonedDoc.querySelectorAll('*');
-                        allElements.forEach(el => {
-                            // 카드, 이미지 컨테이너, 이미지는 제외하고
-                            if (!el.classList.contains('card') && !el.classList.contains('verse-image-container') && el.tagName !== 'IMG') {
-                                // 모든 텍스트 강제 검정 (#000000)
-                                el.style.color = '#000000 !important';
-                                el.style.webkitTextFillColor = '#000000'; // 웹킷 브라우저 강제 적용
-                                el.style.cssText += 'color: #000000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact;';
-                            }
-                        });
-                        // 카드 배경은 흰색 유지
-                        const card = clonedDoc.querySelector('.card');
-                        if(card) card.style.backgroundColor = '#ffffff';
-                    }
-                }); 
-                
-                canvas.toBlob(async (blob) => { 
-                    if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
-                    const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
-                    
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
-                        try { 
-                            await navigator.share({ files: [file], title: '오늘의 묵상', text: '오늘 저에게 주신 말씀이에요.' }); 
-                        } catch (err) { console.log("공유 취소됨"); } 
-                    } else { 
-                        const link = document.createElement('a');
-                        link.download = '오늘의묵상.jpg';
-                        link.href = canvas.toDataURL('image/jpeg');
-                        link.click();
-                        showToast("이미지가 저장되었습니다."); 
-                    } 
-                    btn.innerHTML = originalHTML; 
-                }, 'image/jpeg', 0.9); 
-            } catch (err) { console.error(err); btn.innerHTML = originalHTML; showToast("오류가 발생했습니다.", "fa-times"); } 
-        }
-
-        function showToast(msg, icon="fa-check") {
-            const box = document.getElementById('toast-container'); const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`; box.appendChild(t);
-            requestAnimationFrame(() => t.classList.add('show')); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2500);
-        }
-        function openModal(id) { const m = document.getElementById(id); m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10); document.body.style.overflow = 'hidden'; }
-        function closeModal(id) { const m = document.getElementById(id); m.classList.remove('show'); setTimeout(() => { m.style.display = 'none'; if(!document.querySelector('.modal-overlay.show')) document.body.style.overflow = ''; }, 300); }
-        function closeDetailModal() { closeModal('detail-modal'); }
-        function renderVerse(d) { document.getElementById('verse-img').src = 'images/' + d.image; document.getElementById('verse').innerText = d.verse; document.getElementById('source').innerText = d.source; document.getElementById('meaning').innerText = d.meaning; }
-        
-        function setGreeting(n) { 
-            const h = new Date().getHours(); const s = document.getElementById('greeting-time'); const m = document.getElementById('greeting-msg'); const ns = n ? `<span class="user-name-highlight">${n}님</span>, ` : ''; 
-            let t = "", slot = "night"; 
-            if (h >= 5 && h < 11) { t = "Morning Prayer"; slot = "morning"; } else if (h >= 11 && h < 17) { t = "Afternoon Break"; slot = "afternoon"; } else if (h >= 17 && h < 22) { t = "Evening Comfort"; slot = "evening"; } else { t = "Silent Night"; }
-            s.innerText = t; 
-            const msgs = { morning: [`${ns}새로운 하루의 시작,\n당신의 아침을 응원해요.`, `${ns}오늘도 주님 안에서\n기쁨 가득한 하루 되세요.`], afternoon: [`${ns}분주한 일상 속,\n잠시 쉼표를 찍어보세요.`, `${ns}나른한 오후,\n말씀으로 힘을 얻으세요.`], evening: [`${ns}오늘 하루 수고 많았어요.\n이제 편안히 쉬세요.`, `${ns}지친 하루의 끝,\n주님의 위로가 함께하길.`], night: [`${ns}고요한 밤,\n깊은 위로가 함께하기를.`, `${ns}내일의 걱정은 맡기고\n편안히 주무세요.`] };
-            const lst = msgs[slot]; m.innerHTML = lst[new Date().getDate() % lst.length];
-        }
-        function setTodayDateDisplay() { const t = new Date(); document.getElementById('card-date').innerText = `${t.getFullYear()}. ${t.getMonth() + 1}. ${t.getDate()}`; }
-
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
-</body>
-</html>
+            const todayStr = new Date
