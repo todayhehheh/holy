@@ -18,15 +18,17 @@
         th { background: #faf9f7; color: #666; font-weight: 600; }
         tr:hover { background: #f8f8f8; }
         
-        /* 기도 내용 보기 */
-        .prayer-text { color: #555; font-style: italic; background: #f9f9f9; padding: 8px; border-radius: 5px; margin-top: 5px; display: none; }
-        .show-prayer-btn { background: none; border: 1px solid #ddd; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+        /* 버튼 스타일 */
+        button { cursor: pointer; border: none; border-radius: 5px; font-family: 'Pretendard'; }
+        .add-btn { background: #967e76; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
+        .del-btn { background: #ff6b6b; color: white; padding: 6px 12px; font-size: 0.8rem; }
+        .copy-btn { background: #4dabf7; color: white; padding: 6px 12px; font-size: 0.8rem; margin-right: 5px; transition: background 0.2s; }
+        .copy-btn:hover { background: #339af0; }
+        .show-prayer-btn { background: none; border: 1px solid #ddd; padding: 4px 8px; font-size: 0.8rem; }
 
-        /* 키링 관리 입력창 */
+        .prayer-text { color: #555; font-style: italic; background: #f9f9f9; padding: 8px; border-radius: 5px; margin-top: 5px; display: none; }
         .key-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
         input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; flex-grow: 1; }
-        button.add-btn { background: #967e76; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        button.del-btn { background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -34,13 +36,18 @@
     <h1>👑 관리자 모드</h1>
 
     <div class="section">
-        <div class="sec-title">🔑 키링 등록/삭제</div>
+        <div class="sec-title">🔑 키링 등록/관리</div>
         <div class="key-input-group">
             <input type="text" id="new-key" placeholder="새 키 ID 입력 (예: user_005)">
             <button class="add-btn" onclick="addKey()">등록</button>
         </div>
         <table>
-            <thead><tr><th>키 ID</th><th>상태</th><th>관리</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>키 ID</th>
+                    <th>상태</th>
+                    <th>기능</th> </tr>
+            </thead>
             <tbody id="key-list"></tbody>
         </table>
     </div>
@@ -48,7 +55,7 @@
     <div class="section">
         <div class="sec-title">
             <span>👥 사용자 & 기도 현황</span>
-            <button onclick="loadUsers()" style="font-size:0.8rem; cursor:pointer;">새로고침</button>
+            <button onclick="loadUsers()" style="background:#eee; padding:5px 10px; border-radius:5px;">새로고침</button>
         </div>
         <table>
             <thead><tr><th>이름 (ID)</th><th>최근 접속</th><th>작성한 기도</th></tr></thead>
@@ -60,7 +67,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script>
         // ============================================================
-        // [중요] index.html에 있는 firebaseConfig를 여기에 똑같이 붙여넣으세요!
+        // [중요] index.html의 firebaseConfig를 여기에 붙여넣으세요!
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBTphxbqw8AOc6x_OTOZN9DqeQsZ5tdA3E",
@@ -76,9 +83,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 관리자 접속 보안 (간단한 암호)
-        const password = prompt("관리자 비밀번호를 입력하세요 (설정 안했으면 취소)");
-        // 실제 운영 시에는 이 방식보다 파이어베이스 로그인을 권장하지만, 지금은 간단히 넘어갑니다.
+        // 관리자 비밀번호 (필요하면 주석 해제하여 사용)
+        // const password = prompt("관리자 비밀번호를 입력하세요");
 
         // --- 기능: 키링 목록 불러오기 ---
         function loadKeys() {
@@ -88,14 +94,32 @@
                 list.innerHTML = '';
 
                 Object.keys(keys).forEach(key => {
+                    // [NEW] 주소 복사 버튼 추가
                     const row = `
                         <tr>
                             <td><b>${key}</b></td>
-                            <td style="color:green;">허용됨</td>
-                            <td><button class="del-btn" onclick="deleteKey('${key}')">삭제</button></td>
+                            <td style="color:green; font-size:0.85rem;">사용 가능</td>
+                            <td>
+                                <button class="copy-btn" onclick="copyLink('${key}')"><i class="fa-regular fa-copy"></i> 주소 복사</button>
+                                <button class="del-btn" onclick="deleteKey('${key}')">삭제</button>
+                            </td>
                         </tr>`;
                     list.innerHTML += row;
                 });
+            });
+        }
+
+        // --- [NEW] 기능: 주소 복사 ---
+        function copyLink(keyId) {
+            // 현재 사이트의 기본 주소를 가져옴 (예: https://holy-8xo.pages.dev)
+            const baseUrl = window.location.origin;
+            const fullUrl = `${baseUrl}/?tag=${keyId}`;
+
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                alert(`주소가 복사되었습니다!\n\n${fullUrl}\n\nNFC 쓰기 앱에 붙여넣으세요.`);
+            }).catch(err => {
+                console.error('복사 실패', err);
+                prompt("이 주소를 직접 복사하세요:", fullUrl);
             });
         }
 
@@ -106,18 +130,18 @@
             if(!key) return alert("키 ID를 입력하세요");
 
             db.ref('allowed_keys/' + key).set(true)
-                .then(() => { input.value = ''; alert("등록되었습니다!"); })
+                .then(() => { input.value = ''; }) // 등록 후 알림창 제거 (목록이 바로 갱신됨)
                 .catch(err => alert("오류: " + err.message));
         }
 
         // --- 기능: 키링 삭제 ---
         function deleteKey(key) {
-            if(confirm(`정말 '${key}' 키링을 삭제하시겠습니까?\n이 키로는 더 이상 접속할 수 없습니다.`)) {
+            if(confirm(`정말 '${key}' 키링을 삭제하시겠습니까?`)) {
                 db.ref('allowed_keys/' + key).remove();
             }
         }
 
-        // --- 기능: 사용자 및 기도 불러오기 ---
+        // --- 기능: 사용자 현황 불러오기 ---
         function loadUsers() {
             db.ref('users').once('value').then((snapshot) => {
                 const users = snapshot.val() || {};
@@ -127,23 +151,18 @@
                 Object.entries(users).forEach(([id, data]) => {
                     const history = data.history || [];
                     const lastDate = history.length > 0 ? history[0].date : '-';
-                    
-                    // 기도가 있는 기록만 필터링
                     const prayerLogs = history.filter(h => h.prayer);
-                    let prayerHtml = '';
                     
-                    if(prayerLogs.length > 0) {
-                        prayerHtml = `<button class="show-prayer-btn" onclick="this.nextElementSibling.style.display='block'">기도 보기 (${prayerLogs.length})</button>
-                                      <div class="prayer-text">최근: ${prayerLogs[0].prayer}</div>`;
-                    } else {
-                        prayerHtml = `<span style="color:#ccc; font-size:0.8rem;">기록 없음</span>`;
-                    }
+                    let prayerHtml = prayerLogs.length > 0 
+                        ? `<button class="show-prayer-btn" onclick="this.nextElementSibling.style.display='block'">보기 (${prayerLogs.length})</button>
+                           <div class="prayer-text">"${prayerLogs[0].prayer}"</div>` 
+                        : `<span style="color:#ccc; font-size:0.8rem;">-</span>`;
 
                     const row = `
                         <tr>
                             <td>
-                                <div style="font-weight:bold;">${data.name || '이름없음'}</div>
-                                <div style="font-size:0.75rem; color:#888;">${id}</div>
+                                <div>${data.name || '(이름없음)'}</div>
+                                <div style="font-size:0.75rem; color:#999;">${id}</div>
                             </td>
                             <td>${lastDate}</td>
                             <td>${prayerHtml}</td>
@@ -153,7 +172,6 @@
             });
         }
 
-        // 실행
         loadKeys();
         loadUsers();
     </script>
