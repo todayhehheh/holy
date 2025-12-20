@@ -32,7 +32,7 @@
         .meaning-box { font-size: 0.95rem; color: var(--text-sub); line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; }
 
         .bottom-controls { position: relative; z-index: 10; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; animation: fadeInUp 1s ease-out; }
-        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
+        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
         /* 모달 및 잠금화면 */
@@ -40,7 +40,7 @@
         .modal-overlay.show { opacity: 1; }
         .modal-card { background: white; width: 90%; max-width: 340px; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid #fff; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-card { transform: translateY(0); }
-        #name-modal { z-index: 5000; } #history-modal { z-index: 6000; } #prayer-modal, #detail-modal { z-index: 7000; }
+        #name-modal { z-index: 5000; } #history-modal { z-index: 6000; } #prayer-modal, #detail-modal, #install-modal { z-index: 7000; }
         
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
         .modal-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:20px; color: #444; line-height: 1.4; }
@@ -65,27 +65,31 @@
         .prayer-label { font-size: 0.9rem; color: var(--accent-color); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
         .prayer-content { font-family: 'Gowun Batang'; font-size: 1.05rem; color: #444; line-height: 1.7; white-space: pre-wrap; background: #fafafa; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
 
-        #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; pointer-events: none; }
-        .toast { background: rgba(40, 40, 40, 0.9); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.95rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        /* 토스트 메시지 중앙 정렬 */
+        #toast-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: auto; pointer-events: none; }
+        .toast { background: rgba(0, 0, 0, 0.85); color: white; padding: 15px 30px; border-radius: 50px; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; font-weight: 500; }
         .toast.show { opacity: 1; transform: translateY(0); }
 
-        /* [이 부분이 누락되어 에러가 난 것입니다!] */
         #lock-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(50, 40, 40, 0.98); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; padding: 30px; transition: opacity 0.5s; }
         .lock-icon { font-size: 3rem; margin-bottom: 20px; color: rgba(255,255,255,0.8); }
         .tag-hint { margin-top: 40px; border: 1px solid rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 30px; font-size: 0.8rem; color: #ddd; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        
+        /* 앱 설치 안내 모달 스타일 */
+        .install-guide-box { background: #f8f8f8; padding: 15px; border-radius: 15px; text-align: left; margin-bottom: 15px; }
+        .install-step { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.95rem; color: #444; }
+        .install-icon { background: white; width: 30px; height: 30px; border-radius: 8px; display: flex; justify-content: center; align-items: center; border: 1px solid #ddd; color: #333; }
     </style>
 </head>
 <body>
     <div id="toast-container"></div>
-
     <div id="lock-screen" style="display: none;">
         <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
         <div class="lock-title">화면이 잠겼습니다</div>
         <div class="lock-desc">보안을 위해 접속이 제한되었습니다.<br>키링(NFC)을 다시 태그해주세요.</div>
         <div class="tag-hint"><i class="fa-solid fa-wifi"></i> NFC 태그 대기 중...</div>
     </div>
-
+    
     <div id="name-modal" class="modal-overlay">
         <div class="modal-card">
             <img src="images/intro_lamb.png" alt="환영합니다" class="intro-sheep-img">
@@ -94,7 +98,7 @@
             <button class="modal-btn" onclick="saveUserName()">시작하기</button>
         </div>
     </div>
-
+    
     <div id="prayer-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-title">오늘의 기도</div>
@@ -104,7 +108,7 @@
             <button onclick="closeModal('prayer-modal')" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer;">닫기</button>
         </div>
     </div>
-
+    
     <div id="history-modal" class="modal-overlay">
         <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
@@ -114,7 +118,7 @@
             <div id="history-list" class="history-list-container"></div>
         </div>
     </div>
-
+    
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-card" style="text-align: left;">
             <div class="detail-header">
@@ -125,11 +129,45 @@
         </div>
     </div>
 
+    <div id="install-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">앱처럼 저장하기</div>
+            <div style="font-size:0.9rem; color:#666; margin-bottom:20px;">
+                홈 화면에 추가해두시면<br>3일 동안 태그 없이도 접속 가능해요!
+            </div>
+            
+            <div id="ios-guide" class="install-guide-box" style="display:none;">
+                <div style="font-weight:bold; margin-bottom:10px; color:#333;">아이폰(Safari) 사용법</div>
+                <div class="install-step">
+                    <div class="install-icon"><i class="fa-solid fa-arrow-up-from-bracket"></i></div>
+                    <span>화면 하단 <b>공유 버튼</b> 클릭</span>
+                </div>
+                <div class="install-step">
+                    <div class="install-icon"><i class="fa-regular fa-square-plus"></i></div>
+                    <span><b>'홈 화면에 추가'</b> 선택</span>
+                </div>
+            </div>
+
+            <div id="android-guide" class="install-guide-box" style="display:none;">
+                <div style="font-weight:bold; margin-bottom:10px; color:#333;">갤럭시/안드로이드 사용법</div>
+                <div class="install-step">
+                    <div class="install-icon"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                    <span>화면 우측 상단 <b>점 3개</b> 클릭</span>
+                </div>
+                <div class="install-step">
+                    <div class="install-icon"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                    <span><b>'홈 화면에 추가'</b> 또는<br><b>'앱 설치'</b> 선택</span>
+                </div>
+            </div>
+
+            <button onclick="closeModal('install-modal')" style="background:#eee; color:#666; border:none; padding:12px; border-radius:12px; width:100%; margin-top:10px; font-weight:600; cursor:pointer;">닫기</button>
+        </div>
+    </div>
+
     <div class="header-area">
         <div class="greeting-sub" id="greeting-time">Good Morning</div>
         <div class="greeting-main" id="greeting-msg">오늘 하루도<br>평안하세요</div>
     </div>
-
     <div class="card-wrapper" id="capture-target">
         <div class="card">
             <div class="date-label" id="card-date">TODAY</div>
@@ -143,23 +181,24 @@
             <div class="meaning-box" id="meaning"></div>
         </div>
     </div>
-
     <div class="bottom-controls">
         <button class="ctrl-btn" onclick="openModal('history-modal'); renderHistory();">
             <i class="fa-solid fa-book-open"></i> 기록함
         </button>
         <button class="ctrl-btn" onclick="shareCardImage()">
-            <i class="fa-solid fa-arrow-up-from-bracket"></i> 공유하기
+            <i class="fa-solid fa-share-nodes"></i> 공유하기
         </button>
         <button class="ctrl-btn" onclick="openPrayerModal()">
             <i class="fa-solid fa-pen-nib"></i> 오늘의 기도
+        </button>
+        <button class="ctrl-btn" onclick="showInstallGuide()">
+            <i class="fa-solid fa-download"></i> 앱으로 저장
         </button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
-
     <script src="data.js"></script>
     <script>
         const firebaseConfig = {
@@ -176,41 +215,68 @@
         const db = firebase.database();
         const analytics = firebase.analytics();
 
-        const LOCK_TIMEOUT = 60 * 1000; 
+        const LOCK_TIMEOUT = 3 * 24 * 60 * 60 * 1000; 
         const STORAGE_KEY_AUTH = 'bibleAuthTime';
+        const STORAGE_KEY_USER_ID = 'bibleUserId';
+        
         let currentUserId = null; 
         let currentUserData = { name: "", history: [], today: null };
 
         function init() {
-            // [중요] 배포 전 테스트를 위해 아래 줄을 주석 처리할 수도 있습니다.
-            // 하지만 판매용은 반드시 주석을 풀어야 합니다.
-            // if (checkLockStatus()) return; 
-
             const urlParams = new URLSearchParams(window.location.search);
             const tagId = urlParams.get('tag');
 
             if (tagId) {
                 verifyKeyAndLogin(tagId);
             } else {
-                showLockScreen("잘못된 접근입니다.<br>키링을 태그해주세요.");
+                checkSessionAndLoad();
             }
         }
 
-        // 보안 검문소
+        function checkSessionAndLoad() {
+            const lastAuthTime = localStorage.getItem(STORAGE_KEY_AUTH);
+            const savedUserId = localStorage.getItem(STORAGE_KEY_USER_ID);
+            const now = new Date().getTime();
+
+            if (lastAuthTime && savedUserId && (now - lastAuthTime < LOCK_TIMEOUT)) {
+                console.log("자동 로그인 성공");
+                currentUserId = savedUserId;
+                document.getElementById('lock-screen').style.display = 'none';
+                loadUserDataFromServer();
+                setTodayDateDisplay();
+
+                const remainingTime = LOCK_TIMEOUT - (now - lastAuthTime);
+                setTimeout(() => {
+                    // [수정] 안내 멘트 간결화
+                    showLockScreen("인증이 만료되었습니다.<br>키링을 다시 태그해주세요.");
+                }, remainingTime);
+            } else {
+                showLockScreen("인증이 만료되었습니다.<br>키링을 태그해주세요.");
+            }
+        }
+
         function verifyKeyAndLogin(tagId) {
             const allowRef = db.ref('allowed_keys/' + tagId);
             allowRef.once('value').then((snapshot) => {
                 if (snapshot.val() === true) {
                     currentUserId = tagId;
                     console.log("인증 성공:", tagId);
+                    
                     localStorage.setItem(STORAGE_KEY_AUTH, new Date().getTime());
-                    
-                    // [에러 해결됨] 이제 id="lock-screen"이 존재하므로 에러가 안 납니다!
+                    localStorage.setItem(STORAGE_KEY_USER_ID, tagId);
+
                     document.getElementById('lock-screen').style.display = 'none';
-                    
                     loadUserDataFromServer();
                     setTodayDateDisplay();
-                    setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
+                    
+                    history.replaceState(null, null, window.location.pathname);
+
+                    setTimeout(() => { 
+                        currentUserId = null;
+                        localStorage.removeItem(STORAGE_KEY_AUTH);
+                        showLockScreen("인증이 만료되었습니다.<br>키링을 다시 태그해주세요.");
+                    }, LOCK_TIMEOUT);
+
                 } else {
                     console.warn("미등록 키:", tagId);
                     showLockScreen("등록되지 않은 키링입니다.<br>관리자에게 문의하세요.");
@@ -228,7 +294,21 @@
             if(hint) hint.style.display = 'none';
         }
 
-        // 서버 데이터 로딩
+        // [NEW] 기기별 앱 설치 가이드
+        function showInstallGuide() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isIOS = /iphone|ipad|ipod/.test(ua);
+            
+            if (isIOS) {
+                document.getElementById('ios-guide').style.display = 'block';
+                document.getElementById('android-guide').style.display = 'none';
+            } else {
+                document.getElementById('ios-guide').style.display = 'none';
+                document.getElementById('android-guide').style.display = 'block';
+            }
+            openModal('install-modal');
+        }
+
         function loadUserDataFromServer() {
             db.ref('users/' + currentUserId).once('value').then((snapshot) => {
                 const data = snapshot.val();
@@ -247,7 +327,6 @@
             db.ref('users/' + currentUserId).set(currentUserData).catch(() => showToast("저장 실패", "fa-times"));
         }
 
-        // 기능 로직
         function saveUserName() {
             const input = document.getElementById('user-name-input');
             const name = input.value.trim();
@@ -295,7 +374,6 @@
             } else { showToast("말씀을 먼저 받아주세요.", "fa-times"); }
         }
 
-        // UI 함수
         function openPrayerModal() {
             const todayStr = new Date().toLocaleDateString('ko-KR');
             const item = currentUserData.history.find(i => i.date === todayStr);
@@ -318,6 +396,35 @@
             document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div><div class="detail-prayer-box"><span class="prayer-label"><i class="fa-solid fa-pen-nib"></i> 나의 기도</span>${html}</div>`;
             openModal('detail-modal');
         }
+        
+        async function shareCardImage() { 
+            const target = document.getElementById('capture-target'); 
+            const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
+            const originalHTML = btn.innerHTML; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
+            
+            try { 
+                const canvas = await html2canvas(target, { scale: 2, backgroundColor: '#ffffff', useCORS: true }); 
+                canvas.toBlob(async (blob) => { 
+                    if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
+                    const file = new File([blob], "daily_verse.png", { type: "image/png" }); 
+                    
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
+                        try { 
+                            await navigator.share({ files: [file], title: '오늘의 묵상', text: '오늘 저에게 주신 말씀이에요.' }); 
+                        } catch (err) { console.log("공유 취소됨"); } 
+                    } else { 
+                        const link = document.createElement('a');
+                        link.download = '오늘의묵상.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                        showToast("이미지가 갤러리에 저장되었습니다."); 
+                    } 
+                    btn.innerHTML = originalHTML; 
+                }); 
+            } catch (err) { console.error(err); btn.innerHTML = originalHTML; showToast("오류가 발생했습니다.", "fa-times"); } 
+        }
+
         function showToast(msg, icon="fa-check") {
             const box = document.getElementById('toast-container'); const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`; box.appendChild(t);
             requestAnimationFrame(() => t.classList.add('show')); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2500);
@@ -326,14 +433,7 @@
         function closeModal(id) { const m = document.getElementById(id); m.classList.remove('show'); setTimeout(() => { m.style.display = 'none'; if(!document.querySelector('.modal-overlay.show')) document.body.style.overflow = ''; }, 300); }
         function closeDetailModal() { closeModal('detail-modal'); }
         function renderVerse(d) { document.getElementById('verse-img').src = 'images/' + d.image; document.getElementById('verse').innerText = d.verse; document.getElementById('source').innerText = d.source; document.getElementById('meaning').innerText = d.meaning; }
-        async function shareCardImage() { 
-            const t = document.getElementById('capture-target'); const b = document.querySelector('.bottom-controls button:nth-child(2)'); const o = b.innerHTML; b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; 
-            try { const c = await html2canvas(t, { scale: 2, backgroundColor: null, useCORS: true }); c.toBlob(async (blob) => { 
-                if (!blob) { showToast("오류", "fa-times"); b.innerHTML = o; return; } 
-                const f = new File([blob], "verse.png", { type: "image/png" }); 
-                if (navigator.share && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], title: '오늘의 묵상' }); } catch {} } else { showToast("미지원 브라우저", "fa-times"); } b.innerHTML = o; 
-            }); } catch { b.innerHTML = o; showToast("실패", "fa-times"); } 
-        }
+        
         function setGreeting(n) { 
             const h = new Date().getHours(); const s = document.getElementById('greeting-time'); const m = document.getElementById('greeting-msg'); const ns = n ? `<span class="user-name-highlight">${n}님</span>, ` : ''; 
             let t = "", slot = "night"; 
@@ -342,7 +442,6 @@
             const msgs = { morning: [`${ns}새로운 하루의 시작,\n당신의 아침을 응원해요.`, `${ns}오늘도 주님 안에서\n기쁨 가득한 하루 되세요.`], afternoon: [`${ns}분주한 일상 속,\n잠시 쉼표를 찍어보세요.`, `${ns}나른한 오후,\n말씀으로 힘을 얻으세요.`], evening: [`${ns}오늘 하루 수고 많았어요.\n이제 편안히 쉬세요.`, `${ns}지친 하루의 끝,\n주님의 위로가 함께하길.`], night: [`${ns}고요한 밤,\n깊은 위로가 함께하기를.`, `${ns}내일의 걱정은 맡기고\n편안히 주무세요.`] };
             const lst = msgs[slot]; m.innerHTML = lst[new Date().getDate() % lst.length];
         }
-        function checkLockStatus() { /* 기존 로직 제거됨 (verifyKeyAndLogin으로 대체) */ return false; }
         function setTodayDateDisplay() { const t = new Date(); document.getElementById('card-date').innerText = `${t.getFullYear()}. ${t.getMonth() + 1}. ${t.getDate()}`; }
 
         document.addEventListener('DOMContentLoaded', init);
