@@ -32,6 +32,7 @@
         /* 인사 영역 */
         .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
         .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
+        /* 줄바꿈 적용 */
         .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main); line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
         .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); }
 
@@ -156,31 +157,23 @@
             setTimeout(() => { location.reload(); }, LOCK_TIMEOUT);
         }
 
-        // --- [핵심] 이미지로 공유하기 기능 ---
+        // --- 이미지 공유 기능 ---
         async function shareCardImage() {
             const target = document.getElementById('capture-target');
-            const btn = document.querySelector('.bottom-controls button:nth-child(2)'); // 공유 버튼
+            const btn = document.querySelector('.bottom-controls button:nth-child(2)');
             const originalHTML = btn.innerHTML;
             
-            // 로딩 표시
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...';
 
             try {
-                // 1. 화면 캡처
                 const canvas = await html2canvas(target, { scale: 2, backgroundColor: null, useCORS: true });
-                
-                // 2. 캡처한 이미지를 파일(Blob)로 변환
                 canvas.toBlob(async (blob) => {
                     if (!blob) {
                         alert("이미지 생성에 실패했습니다.");
                         btn.innerHTML = originalHTML;
                         return;
                     }
-
-                    // 3. 공유할 파일 객체 생성
                     const file = new File([blob], "daily_verse.png", { type: "image/png" });
-
-                    // 4. 브라우저가 파일 공유를 지원하는지 확인 (모바일 등)
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                         try {
                             await navigator.share({
@@ -188,17 +181,12 @@
                                 title: '오늘의 묵상',
                                 text: '오늘 저에게 주신 말씀이에요.',
                             });
-                            console.log("공유 성공");
-                        } catch (err) {
-                            console.log("공유 취소 또는 에러", err);
-                        }
+                        } catch (err) { console.log("공유 취소됨"); }
                     } else {
-                        // 5. PC 등 파일 공유 미지원 시 -> 다운로드 유도
                         alert("이 기기는 이미지 바로 공유를 지원하지 않습니다.\n'저장하기'를 눌러 갤러리에 저장한 후 카톡으로 보내주세요!");
                     }
                     btn.innerHTML = originalHTML;
                 });
-
             } catch (err) {
                 console.error(err);
                 alert("오류가 발생했습니다.");
@@ -206,7 +194,7 @@
             }
         }
 
-        // --- 랜덤 인사말 로직 ---
+        // --- 인사말 로직 (날짜별 고정) ---
         function getGreetingMessage(timeSlot, nameSpan) {
             const messages = {
                 morning: [
@@ -230,8 +218,15 @@
                     `${nameSpan}오늘 하루도\n당신은 충분히 잘했어요.`
                 ]
             };
+            
             const msgList = messages[timeSlot];
-            return msgList[Math.floor(Math.random() * msgList.length)];
+            
+            // [수정] 랜덤 대신 날짜를 이용해 고정된 인덱스 선택
+            // 예: 오늘이 20일이면 (20 나누기 3)의 나머지 = 인덱스 2번 메시지로 고정
+            const todayDate = new Date().getDate(); 
+            const fixedIndex = todayDate % msgList.length; 
+            
+            return msgList[fixedIndex];
         }
 
         function setGreeting(name) {
