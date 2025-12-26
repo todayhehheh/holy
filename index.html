@@ -74,19 +74,18 @@
             color: #333333 !important; 
         }
         
-        /* [중요] 캡처용 숨겨진 카드 (절대 건드리지 마세요) */
+        /* 캡처용 촬영 세트장 */
         #hidden-capture-zone {
-            position: fixed; left: -9999px; top: 0; width: 400px; 
-            background-color: #f4f1ea; padding: 40px; /* 여백 확보 */
-            pointer-events: none; opacity: 0; z-index: -1;
+            position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+            background: white; z-index: -9999; opacity: 0; pointer-events: none;
             display: flex; justify-content: center; align-items: center;
         }
-        /* 숨겨진 카드는 애니메이션 없음, 흰 배경, 검은 글씨 강제 */
         #hidden-card {
-            width: 100%; background: #ffffff !important; 
+            width: 380px; background: #ffffff !important; 
             border: 1px solid #e0dcd5; border-radius: 25px; padding: 35px 25px; 
             text-align: center; display: flex; flex-direction: column;
-            color: #000000 !important; box-shadow: none;
+            color: #333333 !important; box-shadow: none !important;
+            transform: none !important; animation: none !important;
         }
         
         .date-label { font-size: 0.75rem; color: #aaaaaa !important; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
@@ -433,7 +432,9 @@
             if (idx !== -1) {
                 currentUserData.history[idx].prayer = txt;
                 saveUserDataToServer();
-                closeModal('prayer-modal');
+                
+                // 저장 시에는 확인 없이 바로 닫기 (히스토리 뒤로가기로 닫음)
+                history.back();
                 setTimeout(() => { showToast("기도가 저장되었습니다."); }, 300);
             } else { showToast("말씀을 먼저 받아주세요.", "fa-times"); }
         }
@@ -466,43 +467,31 @@
             openModal('detail-modal');
         }
         
-        // [중요] 캡처 기능 (분신술 전략)
         async function shareCardImage() { 
             const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
             const originalHTML = btn.innerHTML; 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
             
             try {
-                // 1. 화면에 보이는 카드의 내용을 '숨겨진 분신 카드'에 복사
                 document.getElementById('hidden-date').innerText = document.getElementById('card-date').innerText;
                 document.getElementById('hidden-img').src = document.getElementById('verse-img').src;
                 document.getElementById('hidden-text').innerText = document.getElementById('verse').innerText;
                 document.getElementById('hidden-source').innerText = document.getElementById('source').innerText;
                 document.getElementById('hidden-meaning').innerText = document.getElementById('meaning').innerText;
 
-                // 2. 숨겨진 카드를 캡처 (애니메이션 영향 0%)
                 const target = document.getElementById('hidden-card');
-                
-                // 3. 잠시 캡처 영역을 보이게 해야 찍힘 (투명하게)
-                document.getElementById('hidden-capture-zone').style.opacity = '1';
+                const zone = document.getElementById('hidden-capture-zone');
+                zone.style.opacity = '1';
 
-                const canvas = await html2canvas(target, { 
-                    scale: 2, 
-                    backgroundColor: '#ffffff', 
-                    useCORS: true
-                }); 
-                
-                // 4. 다시 숨김
-                document.getElementById('hidden-capture-zone').style.opacity = '0';
+                const canvas = await html2canvas(target, { scale: 2, backgroundColor: '#ffffff', useCORS: true }); 
+                zone.style.opacity = '0';
 
                 canvas.toBlob(async (blob) => { 
                     if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
                     const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
                     
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
-                        try { 
-                            await navigator.share({ files: [file] }); // 텍스트 없이 이미지만
-                        } catch (err) { console.log("공유 취소됨"); } 
+                        try { await navigator.share({ files: [file] }); } catch (err) { console.log("공유 취소됨"); } 
                     } else { 
                         const link = document.createElement('a');
                         link.download = '오늘의묵상.jpg';
@@ -519,27 +508,45 @@
             const box = document.getElementById('toast-container'); const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`; box.appendChild(t);
             requestAnimationFrame(() => t.classList.add('show')); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2500);
         }
-        function openModal(id) { const m = document.getElementById(id); m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10); document.body.style.overflow = 'hidden'; }
+
+        // [핵심 1] 모달 열 때 '가짜 역사' 추가 (뒤로가기 시 앱 종료 방지)
+        function openModal(id) { 
+            const m = document.getElementById(id); 
+            m.style.display = 'flex'; 
+            setTimeout(() => m.classList.add('show'), 10); 
+            document.body.style.overflow = 'hidden';
+            // 가짜 역사 추가
+            window.history.pushState({modal: id}, '', window.location.pathname);
+        }
         
-        // [수정] 모달 닫기 (종료 확인 추가)
+        // [핵심 2] 닫기 버튼을 눌렀을 때 안전장치
         function closeModal(id) { 
-            // 기도 모달이면서, 내용이 작성되어 있을 때만 확인 질문
+            // 기도 모달이면서 내용이 있으면 확인
             if (id === 'prayer-modal') {
                 const text = document.getElementById('prayer-input').value.trim();
                 if (text.length > 0) {
                     if (!confirm("작성 중인 내용이 사라집니다. 정말 닫으시겠습니까?")) return;
                 }
             }
-
-            const m = document.getElementById(id); 
-            m.classList.remove('show'); 
-            setTimeout(() => { 
-                m.style.display = 'none'; 
-                if(!document.querySelector('.modal-overlay.show')) document.body.style.overflow = ''; 
-            }, 300); 
+            
+            // 여기서 history.back()을 호출하면, 아래 window.onpopstate 이벤트가 실행되면서 모달이 닫힘
+            window.history.back();
         }
         
-        function closeDetailModal() { closeModal('detail-modal'); }
+        function closeDetailModal() { window.history.back(); } 
+
+        // [핵심 3] 브라우저(폰) 뒤로가기 버튼 감지 -> 모달만 닫기
+        window.onpopstate = function(event) {
+            const modals = document.querySelectorAll('.modal-overlay.show');
+            modals.forEach(m => {
+                m.classList.remove('show');
+                setTimeout(() => { 
+                    m.style.display = 'none'; 
+                    document.body.style.overflow = ''; 
+                }, 300);
+            });
+        };
+
         function renderVerse(d) { 
             document.getElementById('verse-img').src = 'images/' + d.image; 
             document.getElementById('verse').innerText = d.verse; 
@@ -561,4 +568,3 @@
     </script>
 </body>
 </html>
-
