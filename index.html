@@ -39,8 +39,7 @@
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-
+        
         /* 인트로 */
         #intro-screen { 
             display: none; 
@@ -49,7 +48,7 @@
             background-color: var(--bg-color);
             animation: fadeInUp 0.5s ease-out;
         }
-        .intro-img { width: 180px; margin-bottom: 30px; animation: float 3s ease-in-out infinite; }
+        .intro-img { width: 180px; margin-bottom: 30px; }
         .intro-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
         .open-verse-btn {
             background: var(--accent-color); color: white; border: none; padding: 15px 40px;
@@ -157,7 +156,7 @@
         /* 성경 뷰어 헤더 */
         .bible-header-controls { 
             position: absolute; top: 15px; width: calc(100% - 30px); left: 15px; 
-            z-index: 50; display: flex; justify-content: flex-end; /* [수정] 우측 정렬 */
+            z-index: 50; display: flex; justify-content: flex-end; 
             pointer-events: none;
         }
         .bible-header-btn {
@@ -460,7 +459,6 @@
                 return;
             }
             
-            // [설정 로드]
             const savedFont = localStorage.getItem(KEY_FONT_SIZE);
             if(savedFont) {
                 document.documentElement.style.setProperty('--bible-font-size', savedFont);
@@ -571,7 +569,6 @@
         function saveToHistory(dateStr, data) { if (!currentUserData.history.some(item => item.date === dateStr)) { currentUserData.history.unshift({ date: dateStr, verse: data.verse, source: data.source, image: data.image, meaning: data.meaning, prayer: "" }); if (currentUserData.history.length > 50) currentUserData.history.pop(); } }
         function editName() { document.getElementById('user-name-input').value = currentUserData.name; openModal('name-modal'); }
 
-        // --- [설정 함수] ---
         const fontSizes = ['0.9rem', '1.1rem', '1.3rem', '1.6rem']; 
         let currentFontSizeIndex = 1; 
 
@@ -583,10 +580,8 @@
             updateFontBtns(index);
         }
         function updateFontBtns(activeIdx) {
-            const btns = document.querySelectorAll('.font-size-controls .font-btn'); 
-            // settings-modal 안의 버튼들만 선택하도록 수정하거나, 인덱스 직접 제어
-            // 여기서는 단순화하여 전체 폰트버튼 중 앞 4개
             const allBtns = document.querySelectorAll('.font-btn');
+            // 앞 4개만 폰트 사이즈
             for(let i=0; i<4; i++) {
                 if(i === activeIdx) allBtns[i].classList.add('active');
                 else allBtns[i].classList.remove('active');
@@ -609,7 +604,6 @@
             if(save) localStorage.setItem(KEY_FONT_FAMILY, type);
         }
 
-        // --- [성경 엔진] ---
         let viewBook = '';
         let viewChapter = 1;
         let observer = null;
@@ -619,13 +613,17 @@
         let longPressTimer;
         const longPressDuration = 500;
 
-        async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } catch (err) {} }
+        // [수정] 안전한 Wake Lock
+        async function requestWakeLock() {
+            if (!('wakeLock' in navigator)) return;
+            try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
+        }
         function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release(); wakeLock = null; } }
 
         function openBibleModal() {
             openModal('bible-modal');
             requestWakeLock();
-            renderBibleBooks(); // 항상 목록부터 시작
+            renderBibleBooks(); // [수정] 항상 목록부터 시작
         }
 
         function renderBibleBooks() {
@@ -689,13 +687,11 @@
             if (isLoadingPrev) return;
             const firstBlock = document.querySelector('.bible-chapter-block');
             if (!firstBlock) return;
-            
             const firstChapter = parseInt(firstBlock.dataset.chapter);
             if (firstChapter <= 1) return; 
 
             isLoadingPrev = true;
             const targetChapter = firstChapter - 1;
-            
             const viewer = document.getElementById('bible-viewer');
             const oldScrollHeight = viewer.scrollHeight;
 
@@ -810,10 +806,11 @@
         
         window.addEventListener('click', function(event) {
             const sheet = document.getElementById('verse-action-sheet');
+            // 바깥 클릭 시 닫기 (절 롱프레스 제외)
             if (sheet.classList.contains('show') && !sheet.contains(event.target) && !event.target.closest('.bible-verse-row')) {
                 closeActionSheet();
             }
-            // [추가] 모달 바깥 클릭 시 닫기
+            // 모달 바깥 클릭 시 닫기
             if (event.target.classList.contains('modal-overlay')) {
                 closeModal(event.target.id);
             }
@@ -843,6 +840,60 @@
             releaseWakeLock(); 
         }
         
+        function closeModal(id) { 
+            if(id === 'bible-modal') releaseWakeLock();
+            window.history.back(); 
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list'); list.innerHTML = '';
+            if(!currentUserData.history || currentUserData.history.length === 0) { list.innerHTML = "<div style='text-align:center; color:var(--text-sub); margin-top:50px;'>기록이 없습니다.</div>"; return; }
+            currentUserData.history.forEach((item, idx) => {
+                const div = document.createElement('div'); div.className = 'history-item'; div.onclick = () => showHistoryDetail(idx);
+                div.innerHTML = `<div class="h-date"><span>${item.date}</span></div><div class="h-verse">${item.verse.split('\n')[0]}...</div><div class="h-source">${item.source}</div>`;
+                list.appendChild(div);
+            });
+        }
+        function showHistoryDetail(idx) {
+            const item = currentUserData.history[idx]; if(!item) return;
+            document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div>`;
+            openModal('detail-modal');
+        }
+        
+        async function shareCardImage() { 
+            const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
+            const originalHTML = btn.innerHTML; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
+            try {
+                document.getElementById('hidden-date').innerText = document.getElementById('card-date').innerText;
+                document.getElementById('hidden-img').src = document.getElementById('verse-img').src;
+                document.getElementById('hidden-text').innerText = document.getElementById('verse').innerText;
+                document.getElementById('hidden-source').innerText = document.getElementById('source').innerText;
+                document.getElementById('hidden-meaning').innerText = document.getElementById('meaning').innerText;
+                const target = document.getElementById('hidden-card');
+                const zone = document.getElementById('hidden-capture-zone');
+                zone.style.opacity = '1';
+                const canvas = await html2canvas(target, { scale: 2, backgroundColor: '#ffffff', useCORS: true }); 
+                zone.style.opacity = '0';
+                canvas.toBlob(async (blob) => { 
+                    if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
+                    const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); } catch (err) {} } 
+                    else { const link = document.createElement('a'); link.download = '오늘의묵상.jpg'; link.href = canvas.toDataURL('image/jpeg'); link.click(); showToast("이미지가 저장되었습니다."); } 
+                    btn.innerHTML = originalHTML; 
+                }, 'image/jpeg', 0.9); 
+            } catch (err) { btn.innerHTML = originalHTML; showToast("오류가 발생했습니다.", "fa-times"); } 
+        }
+
+        function showToast(msg, icon="fa-check") {
+            const box = document.getElementById('toast-container'); const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`; box.appendChild(t);
+            requestAnimationFrame(() => t.classList.add('show')); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2500);
+        }
+
+        function openModal(id) { 
+            const m = document.getElementById(id); m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10); document.body.style.overflow = 'hidden';
+            window.history.pushState({modal: id}, '', window.location.pathname);
+        }
         function closeModal(id) { 
             if(id === 'bible-modal') releaseWakeLock();
             window.history.back(); 
