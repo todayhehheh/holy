@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light only">
     
     <title>기도하는 어린 양 홀리</title>
     
@@ -13,7 +13,6 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <style>
-        /* [테마 변수 정의] */
         :root { 
             --bg-color: #f4f1ea; 
             --card-bg: #ffffff;
@@ -21,21 +20,9 @@
             --text-sub: #555555;
             --accent-color: #967e76; 
             --border-color: #e0dcd5;
-            --bible-bg: #ffffff;
             --input-bg: #fafafa;
             --bible-font-size: 1.1rem;
-        }
-
-        /* 다크 모드 변수 override */
-        [data-theme="dark"] {
-            --bg-color: #1a1a1a;
-            --card-bg: #2c2c2c;
-            --text-main: #e0e0e0;
-            --text-sub: #aaaaaa;
-            --accent-color: #b09e96; 
-            --border-color: #444444;
-            --bible-bg: #2c2c2c;
-            --input-bg: #3a3a3a;
+            --bible-font-family: 'Gowun Batang', serif; /* 기본 서체 변수 */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -49,7 +36,6 @@
             color: var(--text-main);
             overflow-x: hidden;
             -webkit-user-select: none; user-select: none;
-            transition: background-color 0.3s, color 0.3s;
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
@@ -73,13 +59,20 @@
         }
         .open-verse-btn:active { transform: scale(0.95); }
 
-        #main-content { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
+        #main-content { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 40px; position: relative; }
 
-        /* 상단 영역 (로고 + 설정 버튼) */
-        .top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; position: absolute; top: 0; left: 0; z-index: 20; }
-        .settings-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-sub); cursor: pointer; padding: 10px; }
+        /* [수정] 설정 버튼: 우측 상단 플로팅 */
+        .settings-btn-area { position: absolute; top: 15px; right: 20px; z-index: 100; }
+        .settings-btn { 
+            background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.05); 
+            width: 40px; height: 40px; border-radius: 50%; 
+            font-size: 1.2rem; color: var(--text-sub); cursor: pointer; 
+            backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .settings-btn:active { transform: scale(0.9); background: white; }
         
-        .logo-area { margin-top: 40px; margin-bottom: 10px; height: 50px; display: flex; align-items: center; justify-content: center; }
+        .logo-area { margin-bottom: 10px; height: 50px; display: flex; align-items: center; justify-content: center; }
         .custom-logo { max-height: 100%; max-width: 200px; cursor: pointer; display: none; } 
 
         .header-area { position: relative; z-index: 10; text-align: center; margin: 10px 0 20px; padding: 0 20px; width: 100%; }
@@ -145,35 +138,37 @@
         }
         .modal-overlay.show .modal-card { transform: translateY(0); }
         
-        #name-modal { z-index: 7000; height: auto; padding: 30px; max-height: 85vh; }
-        /* 설정 모달 */
-        #settings-modal { z-index: 7500; height: auto; padding: 25px; max-height: 80vh; justify-content: start; text-align: left; }
-
-        .settings-section { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
-        .settings-section:last-child { border-bottom: none; }
-        .settings-label { font-size: 0.95rem; font-weight: bold; color: var(--text-sub); margin-bottom: 15px; display: block; }
+        /* [수정] 설정 모달 크기 및 위치 조정 */
+        #settings-modal .modal-card { height: auto; max-height: 80vh; padding: 25px; display: block; overflow-y: auto; }
         
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .toggle-switch { position: relative; width: 50px; height: 26px; background: #ddd; border-radius: 20px; transition: 0.3s; }
-        .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .toggle-checkbox:checked + .toggle-switch { background: var(--accent-color); }
-        .toggle-checkbox:checked + .toggle-switch::after { left: 27px; }
-        .toggle-checkbox { display: none; }
+        #name-modal { z-index: 7000; height: auto; padding: 30px; max-height: 85vh; }
 
-        .font-size-controls { display: flex; justify-content: space-between; gap: 10px; }
-        .font-btn { flex: 1; padding: 10px; border: 1px solid var(--border-color); background: var(--input-bg); border-radius: 10px; cursor: pointer; color: var(--text-main); font-weight: bold; font-size: 0.9rem; }
-        .font-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        /* 설정 섹션 스타일 */
+        .modal-header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .modal-close-btn { background: none; border: none; font-size: 1.5rem; color: var(--text-sub); cursor: pointer; padding: 0 5px; }
+
+        .settings-section { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; text-align: left; }
+        .settings-section:last-child { border-bottom: none; margin-bottom: 0; }
+        .settings-label { font-size: 0.95rem; font-weight: bold; color: var(--text-sub); margin-bottom: 15px; display: block; display: flex; align-items: center; gap: 8px; }
+        
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .font-btn { flex: 1; padding: 12px 5px; border: 1px solid var(--border-color); background: var(--input-bg); border-radius: 10px; cursor: pointer; color: var(--text-main); font-weight: 500; font-size: 0.9rem; transition: 0.2s; }
+        .font-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: bold; }
 
         /* 성경 뷰어 헤더 */
         .bible-header-controls { 
-            position: absolute; top: 15px; right: 15px; z-index: 50; 
+            position: absolute; top: 15px; width: calc(100% - 30px); left: 15px; 
+            z-index: 50; display: flex; justify-content: space-between; pointer-events: none;
         }
-        .close-bible-btn {
-            background: rgba(255,255,255,0.2); border: none; font-size: 1.8rem; cursor: pointer; color: var(--text-sub); 
+        .bible-header-btn {
+            background: rgba(255,255,255,0.9); border: 1px solid rgba(0,0,0,0.1); font-size: 1.2rem; cursor: pointer; color: #555; 
             width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(2px); transition: color 0.2s;
+            backdrop-filter: blur(4px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            pointer-events: auto;
         }
-        
+        .bible-header-btn:hover { background: white; transform: scale(1.05); color: var(--accent-color); }
+        .close-bible-btn { font-size: 1.5rem; }
+
         .bible-top-controls { margin-bottom: 10px; margin-top: 10px; flex-shrink: 0; padding: 0 5px; }
         
         .bible-search-box { position: relative; width: 100%; margin-bottom: 15px; }
@@ -216,7 +211,8 @@
         .bible-verse-row { margin-bottom: 10px; line-height: 1.7; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; user-select: none; }
         .bible-verse-row.active-press { background-color: var(--bg-color); transform: scale(0.99); } 
         .bible-verse-num { font-size: calc(var(--bible-font-size) * 0.75); color: var(--accent-color); font-weight: bold; margin-right: 8px; vertical-align: baseline; user-select: none; }
-        .bible-verse-text { font-family: 'Gowun Batang'; font-size: var(--bible-font-size); color: var(--text-main); letter-spacing: -0.02em; }
+        /* [수정] 폰트 패밀리 변수 적용 */
+        .bible-verse-text { font-family: var(--bible-font-family); font-size: var(--bible-font-size); color: var(--text-main); letter-spacing: -0.02em; }
 
         .scroll-top-btn { position: absolute; bottom: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: var(--accent-color); color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 20; opacity: 0.9; transition: opacity 0.2s; }
         .scroll-top-btn:hover { opacity: 1; }
@@ -282,39 +278,39 @@
 
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-card">
-            <div class="bible-header">
+            <div class="modal-header-area">
                 <span class="modal-title" style="margin:0;">설정</span>
-                <button onclick="closeModal('settings-modal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-sub);">&times;</button>
+                <button onclick="closeModal('settings-modal')" class="modal-close-btn">&times;</button>
             </div>
             
             <div class="settings-section">
-                <label class="toggle-row">
-                    <span class="settings-label" style="margin:0;"><i class="fa-solid fa-moon"></i> 다크 모드</span>
-                    <input type="checkbox" id="dark-mode-toggle" class="toggle-checkbox" onchange="toggleDarkMode()">
-                    <span class="toggle-switch"></span>
-                </label>
-            </div>
-
-            <div class="settings-section">
-                <span class="settings-label"><i class="fa-solid fa-font"></i> 글자 크기</span>
-                <div class="font-size-controls">
+                <span class="settings-label"><i class="fa-solid fa-text-height"></i> 글자 크기</span>
+                <div class="toggle-row">
                     <button class="font-btn" onclick="setFontSize(0)">작게</button>
                     <button class="font-btn" onclick="setFontSize(1)">보통</button>
                     <button class="font-btn" onclick="setFontSize(2)">크게</button>
-                    <button class="font-btn" onclick="setFontSize(3)">더 크게</button>
+                    <button class="font-btn" onclick="setFontSize(3)">왕크게</button>
                 </div>
             </div>
 
             <div class="settings-section">
-                <span class="settings-label"><i class="fa-solid fa-user-pen"></i> 이름 변경</span>
-                <button class="modal-btn" onclick="closeModal('settings-modal'); openModal('name-modal');" style="margin-top:0;">이름 수정하기</button>
+                <span class="settings-label"><i class="fa-solid fa-font"></i> 서체 변경</span>
+                <div class="toggle-row">
+                    <button class="font-btn active" id="font-serif-btn" onclick="setFontFamily('serif')" style="font-family:'Gowun Batang', serif;">명조체 (진지)</button>
+                    <button class="font-btn" id="font-sans-btn" onclick="setFontFamily('sans')" style="font-family:'Pretendard', sans-serif;">고딕체 (깔끔)</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <span class="settings-label"><i class="fa-solid fa-user-pen"></i> 사용자 정보</span>
+                <button class="modal-btn" onclick="closeModal('settings-modal'); openModal('name-modal');" style="margin-top:0; background:var(--input-bg); color:var(--text-main); border:1px solid var(--border-color);">이름 수정하기</button>
             </div>
         </div>
     </div>
     
     <div id="main-content" style="display:none;">
-        <div class="top-bar">
-            <div></div> <button class="settings-btn" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></button>
+        <div class="settings-btn-area">
+            <button class="settings-btn" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></button>
         </div>
 
         <div class="logo-area">
@@ -357,7 +353,8 @@
     <div id="bible-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="bible-header-controls">
-                <button onclick="closeModal('bible-modal')" class="close-bible-btn">&times;</button>
+                <button onclick="cycleFontSize()" class="bible-header-btn" style="font-size:1rem; font-weight:bold;">Aa</button>
+                <button onclick="closeModal('bible-modal')" class="bible-header-btn close-bible-btn">&times;</button>
             </div>
             
             <div id="bible-selector" style="flex:1; overflow:hidden; display:flex; flex-direction:column; padding-top:10px;">
@@ -442,7 +439,7 @@
         const STORAGE_KEY_USER_ID = 'bibleUserId';
         const KEY_LAST_BIBLE_POS = 'lastBiblePos';
         const KEY_FONT_SIZE = 'bibleFontSize';
-        const KEY_DARK_MODE = 'bibleDarkMode';
+        const KEY_FONT_FAMILY = 'bibleFontFamily';
         const KEY_LAST_VISIT = 'bibleLastVisit';
 
         let currentUserId = null; 
@@ -470,15 +467,17 @@
             const savedFont = localStorage.getItem(KEY_FONT_SIZE);
             if(savedFont) {
                 document.documentElement.style.setProperty('--bible-font-size', savedFont);
-                // 버튼 상태 업데이트
                 const index = fontSizes.indexOf(savedFont);
-                if(index !== -1) updateFontBtns(index);
+                if(index !== -1) {
+                    currentFontSizeIndex = index;
+                    updateFontBtns(index);
+                }
             }
             
-            const savedTheme = localStorage.getItem(KEY_DARK_MODE);
-            if(savedTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.getElementById('dark-mode-toggle').checked = true;
+            // [서체 로드]
+            const savedFamily = localStorage.getItem(KEY_FONT_FAMILY);
+            if (savedFamily) {
+                setFontFamily(savedFamily, false);
             }
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -544,16 +543,13 @@
                     setGreeting(currentUserData.name);
                     checkAndLoadVerse(); 
                     
-                    // [인트로 자동 패스 로직]
                     const todayStr = new Date().toLocaleDateString();
                     const lastVisit = localStorage.getItem(KEY_LAST_VISIT);
                     
                     if (lastVisit === todayStr) {
-                        // 오늘 이미 방문했으면 인트로 스킵
                         document.getElementById('main-content').style.display = 'flex';
                         document.getElementById('main-content').style.animation = 'fadeInUp 0.8s ease-out';
                     } else {
-                        // 첫 방문이면 인트로 보여줌
                         document.getElementById('intro-screen').style.display = 'flex';
                         localStorage.setItem(KEY_LAST_VISIT, todayStr);
                     }
@@ -569,12 +565,10 @@
             if (name.length > 0) { 
                 currentUserData.name = name; 
                 saveUserDataToServer(); 
-                // 모달 닫기 (설정에서 왔으면 설정으로 돌아가지 않고 그냥 닫음)
                 closeModal('name-modal'); 
                 setGreeting(name); 
                 checkAndLoadVerse(); 
                 
-                // 만약 인트로 화면이었다면 메인으로 이동
                 if(document.getElementById('intro-screen').style.display !== 'none') {
                     showMainContent();
                 } else {
@@ -590,29 +584,53 @@
 
         // --- [설정 관련 함수] ---
         const fontSizes = ['0.9rem', '1.1rem', '1.3rem', '1.6rem']; 
-        
+        let currentFontSizeIndex = 1; 
+
         function setFontSize(index) {
+            currentFontSizeIndex = index;
             const newSize = fontSizes[index];
             document.documentElement.style.setProperty('--bible-font-size', newSize);
             localStorage.setItem(KEY_FONT_SIZE, newSize);
             updateFontBtns(index);
         }
         function updateFontBtns(activeIdx) {
-            const btns = document.querySelectorAll('.font-btn');
-            btns.forEach((btn, idx) => {
-                if(idx === activeIdx) btn.classList.add('active');
-                else btn.classList.remove('active');
-            });
-        }
-        function toggleDarkMode() {
-            const chk = document.getElementById('dark-mode-toggle');
-            if(chk.checked) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem(KEY_DARK_MODE, 'dark');
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem(KEY_DARK_MODE, 'light');
+            // 설정 모달 내 버튼들
+            const btns = document.querySelectorAll('.font-btn'); 
+            // 4개씩 그룹지어 있으므로 인덱스 주의 (앞 4개는 크기조절)
+            for(let i=0; i<4; i++) {
+                if(i === activeIdx) btns[i].classList.add('active');
+                else btns[i].classList.remove('active');
             }
+        }
+        
+        function cycleFontSize() {
+            currentFontSizeIndex = (currentFontSizeIndex + 1) % fontSizes.length;
+            const newSize = fontSizes[currentFontSizeIndex];
+            document.documentElement.style.setProperty('--bible-font-size', newSize);
+            localStorage.setItem(KEY_FONT_SIZE, newSize);
+            
+            const labels = ["작게", "보통", "크게", "왕크게"];
+            showToast(`글자 크기: ${labels[currentFontSizeIndex]}`, "fa-text-height");
+        }
+
+        // [서체 변경]
+        function setFontFamily(type, save=true) {
+            const serifBtn = document.getElementById('font-serif-btn');
+            const sansBtn = document.getElementById('font-sans-btn');
+            let family = '';
+
+            if (type === 'serif') {
+                family = "'Gowun Batang', serif";
+                serifBtn.classList.add('active');
+                sansBtn.classList.remove('active');
+            } else {
+                family = "'Pretendard', sans-serif";
+                serifBtn.classList.remove('active');
+                sansBtn.classList.add('active');
+            }
+
+            document.documentElement.style.setProperty('--bible-font-family', family);
+            if(save) localStorage.setItem(KEY_FONT_FAMILY, type);
         }
 
         // --- [성경 읽기 엔진] ---
