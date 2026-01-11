@@ -39,7 +39,8 @@
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-        
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+
         /* 인트로 */
         #intro-screen { 
             display: none; 
@@ -48,7 +49,7 @@
             background-color: var(--bg-color);
             animation: fadeInUp 0.5s ease-out;
         }
-        .intro-img { width: 180px; margin-bottom: 30px; }
+        .intro-img { width: 180px; margin-bottom: 30px; animation: float 3s ease-in-out infinite; }
         .intro-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
         .open-verse-btn {
             background: var(--accent-color); color: white; border: none; padding: 15px 40px;
@@ -175,13 +176,33 @@
         .bible-search-input:focus { border-color: var(--accent-color); background: var(--card-bg); box-shadow: 0 0 0 3px rgba(150, 126, 118, 0.1); }
         .bible-search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
-        .bible-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; padding: 5px; flex: 1; margin-top: 10px;}
-        .bible-book-btn { background: var(--input-bg); border: 1px solid var(--border-color); padding: 14px 5px; border-radius: 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; color: var(--text-main); transition: all 0.1s; }
+        /* [수정] 버튼 스타일: 3열 고정, 균일한 높이, 중앙 정렬 */
+        .bible-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; 
+            overflow-y: auto; padding: 5px; flex: 1; margin-top: 10px; 
+        }
+        .bible-book-btn { 
+            background: var(--input-bg); border: 1px solid var(--border-color); 
+            padding: 5px; height: 50px; /* 높이 고정 */
+            border-radius: 12px; font-size: 0.95rem; font-weight: 500; 
+            cursor: pointer; color: var(--text-main); transition: all 0.1s;
+            display: flex; align-items: center; justify-content: center; /* 중앙 정렬 */
+            text-align: center; line-height: 1.2; word-break: keep-all; /* 줄바꿈 제어 */
+        }
         .bible-book-btn:hover { border-color: #bbb; }
         .bible-book-btn.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 700; }
 
-        .chapter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; display: none; padding: 5px; flex: 1; margin-top: 40px; }
-        .chapter-btn { background: var(--input-bg); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 10px; cursor: pointer; font-weight: bold; color: var(--text-main); font-size: 0.9rem; }
+        /* [수정] 장 버튼: 5열 고정 */
+        .chapter-grid { 
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; 
+            overflow-y: auto; display: none; padding: 5px; flex: 1; margin-top: 40px; 
+        }
+        .chapter-btn { 
+            background: var(--input-bg); border: 1px solid var(--border-color); 
+            padding: 0; height: 45px; /* 높이 고정 */
+            border-radius: 10px; cursor: pointer; font-weight: bold; color: var(--text-main); font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+        }
         .chapter-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
         .bible-text-view { 
@@ -414,6 +435,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    <script src="logo_config.js"></script>
     <script src="data.js"></script>
     <script src="bible_text.js"></script>
     <script>
@@ -442,11 +464,8 @@
         let currentUserData = { name: "", history: [], today: null };
         let wakeLock = null; 
 
-        const logoRules = [
-            { prefix: 'church_', img: 'images/church_logo.png', link: 'https://www.google.com' },
-            { prefix: 'kids_', img: 'images/kids_logo.png', link: '#' },
-            { prefix: 'group_a', img: 'images/group_a_logo.png', link: 'https://naver.com' }
-        ];
+        // [중요] 로고 설정이 없을 경우를 대비한 기본값
+        let activeLogoConfig = (typeof logoConfig !== 'undefined') ? logoConfig : [];
 
         const canonicalBibleList = [
             "창세기", "출애굽기", "레위기", "민수기", "신명기", "여호수아", "사사기", "룻기", "사무엘상", "사무엘하", "열왕기상", "열왕기하", "역대상", "역대하", "에스라", "느헤미야", "에스더", "욥기", "시편", "잠언", "전도서", "아가", "이사야", "예레미야", "예레미야애가", "에스겔", "다니엘", "호세아", "요엘", "아모스", "오바댜", "요나", "미가", "나훔", "하박국", "스바냐", "학개", "스가랴", "말라기",
@@ -512,7 +531,8 @@
             const logoImg = document.getElementById('custom-logo');
             const logoLink = document.getElementById('logo-link');
             let matchedRule = null;
-            for (const rule of logoRules) { if (userId.startsWith(rule.prefix)) { matchedRule = rule; break; } }
+            // logo_config.js에서 불러온 설정 사용
+            for (const rule of activeLogoConfig) { if (userId.startsWith(rule.prefix)) { matchedRule = rule; break; } }
             if (matchedRule) { logoImg.src = matchedRule.img; logoLink.href = matchedRule.link; logoImg.style.display = 'block'; } else { logoImg.style.display = 'none'; }
         }
 
@@ -613,17 +633,13 @@
         let longPressTimer;
         const longPressDuration = 500;
 
-        // [수정] 안전한 Wake Lock
-        async function requestWakeLock() {
-            if (!('wakeLock' in navigator)) return;
-            try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
-        }
+        async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } catch (err) {} }
         function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release(); wakeLock = null; } }
 
         function openBibleModal() {
             openModal('bible-modal');
             requestWakeLock();
-            renderBibleBooks(); // [수정] 항상 목록부터 시작
+            renderBibleBooks(); 
         }
 
         function renderBibleBooks() {
@@ -806,7 +822,7 @@
         
         window.addEventListener('click', function(event) {
             const sheet = document.getElementById('verse-action-sheet');
-            // 바깥 클릭 시 닫기 (절 롱프레스 제외)
+            // 바깥 클릭 시 닫기
             if (sheet.classList.contains('show') && !sheet.contains(event.target) && !event.target.closest('.bible-verse-row')) {
                 closeActionSheet();
             }
@@ -840,60 +856,6 @@
             releaseWakeLock(); 
         }
         
-        function closeModal(id) { 
-            if(id === 'bible-modal') releaseWakeLock();
-            window.history.back(); 
-        }
-
-        function renderHistory() {
-            const list = document.getElementById('history-list'); list.innerHTML = '';
-            if(!currentUserData.history || currentUserData.history.length === 0) { list.innerHTML = "<div style='text-align:center; color:var(--text-sub); margin-top:50px;'>기록이 없습니다.</div>"; return; }
-            currentUserData.history.forEach((item, idx) => {
-                const div = document.createElement('div'); div.className = 'history-item'; div.onclick = () => showHistoryDetail(idx);
-                div.innerHTML = `<div class="h-date"><span>${item.date}</span></div><div class="h-verse">${item.verse.split('\n')[0]}...</div><div class="h-source">${item.source}</div>`;
-                list.appendChild(div);
-            });
-        }
-        function showHistoryDetail(idx) {
-            const item = currentUserData.history[idx]; if(!item) return;
-            document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div>`;
-            openModal('detail-modal');
-        }
-        
-        async function shareCardImage() { 
-            const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
-            const originalHTML = btn.innerHTML; 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
-            try {
-                document.getElementById('hidden-date').innerText = document.getElementById('card-date').innerText;
-                document.getElementById('hidden-img').src = document.getElementById('verse-img').src;
-                document.getElementById('hidden-text').innerText = document.getElementById('verse').innerText;
-                document.getElementById('hidden-source').innerText = document.getElementById('source').innerText;
-                document.getElementById('hidden-meaning').innerText = document.getElementById('meaning').innerText;
-                const target = document.getElementById('hidden-card');
-                const zone = document.getElementById('hidden-capture-zone');
-                zone.style.opacity = '1';
-                const canvas = await html2canvas(target, { scale: 2, backgroundColor: '#ffffff', useCORS: true }); 
-                zone.style.opacity = '0';
-                canvas.toBlob(async (blob) => { 
-                    if (!blob) { showToast("오류 발생", "fa-times"); btn.innerHTML = originalHTML; return; } 
-                    const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file] }); } catch (err) {} } 
-                    else { const link = document.createElement('a'); link.download = '오늘의묵상.jpg'; link.href = canvas.toDataURL('image/jpeg'); link.click(); showToast("이미지가 저장되었습니다."); } 
-                    btn.innerHTML = originalHTML; 
-                }, 'image/jpeg', 0.9); 
-            } catch (err) { btn.innerHTML = originalHTML; showToast("오류가 발생했습니다.", "fa-times"); } 
-        }
-
-        function showToast(msg, icon="fa-check") {
-            const box = document.getElementById('toast-container'); const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`; box.appendChild(t);
-            requestAnimationFrame(() => t.classList.add('show')); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2500);
-        }
-
-        function openModal(id) { 
-            const m = document.getElementById(id); m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10); document.body.style.overflow = 'hidden';
-            window.history.pushState({modal: id}, '', window.location.pathname);
-        }
         function closeModal(id) { 
             if(id === 'bible-modal') releaseWakeLock();
             window.history.back(); 
