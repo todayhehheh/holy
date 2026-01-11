@@ -37,7 +37,6 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
-        /* 인트로 화면 */
         #intro-screen { 
             display: none; 
             flex-direction: column; align-items: center; justify-content: center;
@@ -55,17 +54,18 @@
         }
         .open-verse-btn:active { transform: scale(0.95); }
 
-        #main-content { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; }
+        #main-content { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
 
-        .header-area { position: relative; z-index: 10; text-align: center; margin: 30px 0 20px; padding: 0 20px; width: 100%; }
+        .logo-area { margin-bottom: 10px; height: 50px; display: flex; align-items: center; justify-content: center; }
+        .custom-logo { max-height: 100%; max-width: 200px; cursor: pointer; display: none; } 
+
+        .header-area { position: relative; z-index: 10; text-align: center; margin: 10px 0 20px; padding: 0 20px; width: 100%; }
         .greeting-sub { font-size: 0.9rem; color: #967e76; margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
         .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #333333 !important; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
         .user-name-highlight { color: #967e76; border-bottom: 2px solid rgba(150, 126, 118, 0.3); cursor: pointer; }
         .edit-icon { font-size: 0.9rem; color: #bbb; margin-left: 5px; cursor: pointer; }
 
-        /* 화면에 보이는 카드 */
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; animation: fadeInUp 0.8s ease-out; }
-        
         .card { 
             background: #ffffff !important; 
             border: var(--card-border); border-radius: 25px; padding: 35px 25px; 
@@ -74,7 +74,6 @@
             color: #333333 !important; 
         }
         
-        /* 캡처용 촬영 세트장 */
         #hidden-capture-zone {
             position: fixed; left: 0; top: 0; width: 100%; height: 100%;
             background: white; z-index: -9999; opacity: 0; pointer-events: none;
@@ -89,22 +88,18 @@
         }
         
         .date-label { font-size: 0.75rem; color: #aaaaaa !important; letter-spacing: 1px; margin-bottom: 25px; font-weight: 600; }
-        
         .verse-image-container { 
             width: 100%; aspect-ratio: 1 / 1; margin-bottom: 30px; border-radius: 15px; overflow: hidden; 
             background-color: #f8f8f8 !important; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); 
         }
         .verse-img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
-        
         .verse-text { 
             font-family: 'Gowun Batang', serif; font-size: 1.3rem; 
             color: #333333; 
             line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; 
         }
         .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76; font-weight: 600; }
-        
         .meaning-box { 
             font-size: 0.95rem; color: #555555; 
             line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
@@ -114,12 +109,42 @@
         .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; z-index: 6000; }
         .modal-overlay.show { opacity: 1; }
         .modal-card { background: white; width: 90%; max-width: 340px; padding: 30px; border-radius: 25px; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid #fff; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-card { transform: translateY(0); }
-        #name-modal { z-index: 5000; } #history-modal { z-index: 6000; } #prayer-modal, #detail-modal { z-index: 7000; }
+        #name-modal { z-index: 7000; } 
         
+        /* [성경 뷰어 개선 스타일] */
+        .bible-top-controls { margin-bottom: 20px; }
+        
+        /* 검색창 */
+        .bible-search-box { position: relative; margin-bottom: 15px; width: 100%; }
+        .bible-search-input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px; border: 1px solid #ddd; background: #f9f9f9; font-family: 'Pretendard'; font-size: 0.95rem; outline: none; }
+        .bible-search-input:focus { border-color: var(--accent-color); background: white; }
+        .bible-search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
+
+        /* 탭 버튼 */
+        .bible-tabs { display: flex; background: #f0f0f0; border-radius: 12px; padding: 4px; margin-bottom: 15px; }
+        .bible-tab { flex: 1; padding: 10px; border: none; background: none; border-radius: 10px; cursor: pointer; font-size: 0.9rem; color: #888; transition: all 0.2s; font-weight: 600; }
+        .bible-tab.active { background: white; color: var(--accent-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* 책 목록 (그리드) */
+        .bible-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 55vh; overflow-y: auto; padding: 5px; }
+        .bible-book-btn { background: #fafafa; border: 1px solid #eee; padding: 12px 5px; border-radius: 12px; font-size: 0.9rem; cursor: pointer; color: #555; transition: all 0.1s; }
+        .bible-book-btn:hover { background: #f5f5f5; border-color: #ddd; }
+        .bible-book-btn:active { transform: scale(0.98); }
+        .bible-book-btn span { display: block; font-size: 0.75rem; color: #aaa; margin-top: 3px; } /* 약어 등 */
+
+        .chapter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-height: 55vh; overflow-y: auto; display: none; padding: 5px; }
+        .chapter-btn { background: white; border: 1px solid #eee; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; color: #555; }
+        .chapter-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+
+        .bible-text-view { display: none; text-align: left; max-height: 60vh; overflow-y: auto; padding: 15px; line-height: 1.8; font-family: 'Gowun Batang'; background: #fdfdfd; border-radius: 15px; border: 1px solid #f0f0f0; }
+        .bible-text-title { font-weight: bold; color: var(--accent-color); margin-bottom: 15px; font-size: 1.2rem; border-bottom: 1px dashed #ddd; padding-bottom: 10px; }
+        .bible-verse-num { font-size: 0.7rem; color: #bbb; vertical-align: super; margin-right: 3px; }
+        
+        /* 기타 스타일 */
         .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
         .modal-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:20px; color: #444; line-height: 1.4; }
         .modal-input { width:100%; padding:15px; border:1px solid #ddd; border-radius: 12px; margin-bottom:20px; font-size: 1rem; outline: none; background: #fafafa; font-family: 'Pretendard'; resize: none; color: #333 !important; }
@@ -128,7 +153,6 @@
         .history-list-container { text-align: left; width: 100%; }
         .history-item { background: #faf9f7; padding: 18px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #eee; cursor: pointer; transition: all 0.2s; position: relative; }
         .h-date { font-size: 0.75rem; color: #999; margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .h-tag { background: #967e76; color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
         .h-verse { font-family: 'Gowun Batang'; font-size: 1rem; font-weight: 700; color: #444; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .h-source { font-size: 0.8rem; color: var(--accent-color); margin-top: 2px; }
 
@@ -138,9 +162,6 @@
         .detail-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: #333; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; font-weight: 700; }
         .detail-source { color: var(--accent-color); font-weight: bold; margin-bottom: 25px; display: block; text-align: right; }
         .detail-meaning { font-size: 0.95rem; color: #555; background: #f4f1ea; padding: 20px; border-radius: 15px; text-align: left; margin-bottom: 25px; line-height: 1.6; border: 1px solid #e0dcd5; }
-        .detail-prayer-box { border-top: 2px dashed #e0dcd5; padding-top: 25px; text-align: left; }
-        .prayer-label { font-size: 0.9rem; color: var(--accent-color); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-        .prayer-content { font-family: 'Gowun Batang'; font-size: 1.05rem; color: #444; line-height: 1.7; white-space: pre-wrap; background: #fafafa; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
 
         #toast-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: auto; pointer-events: none; }
         .toast { background: rgba(0, 0, 0, 0.85); color: white; padding: 15px 30px; border-radius: 50px; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; font-weight: 500; }
@@ -180,6 +201,12 @@
     </div>
     
     <div id="main-content" style="display:none;">
+        <div class="logo-area">
+            <a id="logo-link" href="#" target="_blank">
+                <img id="custom-logo" class="custom-logo" src="" alt="로고">
+            </a>
+        </div>
+
         <div class="header-area">
             <div class="greeting-sub" id="greeting-time">Good Morning</div>
             <div class="greeting-main" id="greeting-msg">오늘 하루도<br>평안하세요</div>
@@ -206,8 +233,8 @@
             <button class="ctrl-btn" onclick="shareCardImage()">
                 <i class="fa-solid fa-share-nodes"></i> 공유하기
             </button>
-            <button class="ctrl-btn" onclick="openPrayerModal()">
-                <i class="fa-solid fa-pen-nib"></i> 오늘의 기도
+            <button class="ctrl-btn" onclick="openBibleModal()">
+                <i class="fa-solid fa-book-bible"></i> 성경 읽기
             </button>
         </div>
     </div>
@@ -226,15 +253,45 @@
         </div>
     </div>
 
-    <div id="prayer-modal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-title">오늘의 기도</div>
-            <div style="font-size:0.9rem; color:#888; margin-bottom:15px; line-height:1.4;">오늘 주신 말씀을 묵상하며<br>나의 다짐과 기도를 적어보세요.</div>
-            <textarea id="prayer-input" class="modal-input" rows="5" placeholder="이곳에 기도를 작성하세요..."></textarea>
-            <button class="modal-btn" onclick="savePrayer()">저장하기</button>
-            <button onclick="closeModal('prayer-modal')" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer;">닫기</button>
+    <div id="bible-modal" class="modal-overlay">
+        <div class="modal-card" style="width: 95%; max-width: 400px; height: 85vh; padding: 25px 20px;">
+            <div class="bible-header">
+                <span class="modal-title" style="margin:0;">성경 읽기</span>
+                <button onclick="closeModal('bible-modal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#999;">&times;</button>
+            </div>
+            
+            <div id="bible-selector">
+                <div class="bible-top-controls">
+                    <div class="bible-search-box">
+                        <i class="fa-solid fa-magnifying-glass bible-search-icon"></i>
+                        <input type="text" class="bible-search-input" placeholder="성경 검색 (예: 마태, 시편)" onkeyup="filterBible(this.value)">
+                    </div>
+                    <div class="bible-tabs">
+                        <button class="bible-tab active" onclick="switchTestament('old')">구약</button>
+                        <button class="bible-tab" onclick="switchTestament('new')">신약</button>
+                    </div>
+                </div>
+                <div id="bible-books" class="bible-grid"></div>
+            </div>
+
+            <div id="chapter-selector" style="display:none;">
+                <div style="margin-bottom:15px; display:flex; align-items:center;">
+                    <button onclick="backToBooks()" class="back-btn" style="margin-right:auto;"><i class="fa-solid fa-chevron-left"></i> 목록으로</button>
+                    <span id="selected-book-name" style="font-weight:bold; color:var(--accent-color); font-size:1.1rem;"></span>
+                </div>
+                <div id="chapter-grid" class="chapter-grid"></div>
+            </div>
+
+            <div id="bible-viewer" class="bible-text-view">
+                <div style="margin-bottom:15px; display:flex; align-items:center;">
+                    <button onclick="backToChapters()" class="back-btn" style="margin-right:auto;"><i class="fa-solid fa-chevron-left"></i> 장 선택</button>
+                </div>
+                <div id="bible-text-title" class="bible-text-title"></div>
+                <div id="bible-text-content"></div>
+            </div>
         </div>
     </div>
+
     <div id="history-modal" class="modal-overlay">
         <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
@@ -244,6 +301,7 @@
             <div id="history-list" class="history-list-container"></div>
         </div>
     </div>
+    
     <div id="detail-modal" class="modal-overlay">
         <div class="modal-card" style="text-align: left;">
             <div class="detail-header">
@@ -258,6 +316,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
     <script src="data.js"></script>
+    <script src="bible_text.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBTphxbqw8AOc6x_OTOZN9DqeQsZ5tdA3E",
@@ -279,6 +338,17 @@
         
         let currentUserId = null; 
         let currentUserData = { name: "", history: [], today: null };
+
+        const logoRules = [
+            { prefix: 'church_', img: 'images/church_logo.png', link: 'https://www.google.com' },
+            { prefix: 'kids_', img: 'images/kids_logo.png', link: '#' },
+            { prefix: 'group_a', img: 'images/group_a_logo.png', link: 'https://naver.com' }
+        ];
+
+        const bibleList = {
+            old: ["창세기", "출애굽기", "레위기", "민수기", "신명기", "여호수아", "사사기", "룻기", "사무엘상", "사무엘하", "열왕기상", "열왕기하", "역대상", "역대하", "에스라", "느헤미야", "에스더", "욥기", "시편", "잠언", "전도서", "아가", "이사야", "예레미야", "예레미야애가", "에스겔", "다니엘", "호세아", "요엘", "아모스", "오바댜", "요나", "미가", "나훔", "하박국", "스바냐", "학개", "스가랴", "말라기"],
+            new: ["마태복음", "마가복음", "누가복음", "요한복음", "사도행전", "로마서", "고린도전서", "고린도후서", "갈라디아서", "에베소서", "빌립보서", "골로새서", "데살로니가전서", "데살로니가후서", "디모데전서", "디모데후서", "디도서", "빌레몬서", "히브리서", "야고보서", "베드로전서", "베드로후서", "요한일서", "요한이서", "요한삼서", "유다서", "요한계시록"]
+        };
 
         function init() {
             if (typeof bibleData === 'undefined' || !bibleData) {
@@ -304,6 +374,7 @@
             if (lastAuthTime && savedUserId && (now - lastAuthTime < LOCK_TIMEOUT)) {
                 currentUserId = savedUserId;
                 document.getElementById('lock-screen').style.display = 'none';
+                applyCustomLogo(currentUserId);
                 loadUserDataFromServer();
                 setTodayDateDisplay();
 
@@ -325,6 +396,7 @@
                     localStorage.setItem(STORAGE_KEY_USER_ID, tagId);
 
                     document.getElementById('lock-screen').style.display = 'none';
+                    applyCustomLogo(currentUserId);
                     loadUserDataFromServer();
                     setTodayDateDisplay();
                     
@@ -340,6 +412,27 @@
                     showLockScreen("등록되지 않은 키링입니다.<br>관리자에게 문의하세요.");
                 }
             }).catch((error) => { console.error("인증 에러", error); showLockScreen("서버 연결에 실패했습니다."); });
+        }
+
+        function applyCustomLogo(userId) {
+            const logoImg = document.getElementById('custom-logo');
+            const logoLink = document.getElementById('logo-link');
+            let matchedRule = null;
+
+            for (const rule of logoRules) {
+                if (userId.startsWith(rule.prefix)) {
+                    matchedRule = rule;
+                    break;
+                }
+            }
+
+            if (matchedRule) {
+                logoImg.src = matchedRule.img;
+                logoLink.href = matchedRule.link;
+                logoImg.style.display = 'block';
+            } else {
+                logoImg.style.display = 'none';
+            }
         }
 
         function showLockScreen(message) {
@@ -424,46 +517,124 @@
                 if (currentUserData.history.length > 50) currentUserData.history.pop();
             }
         }
-        function savePrayer() {
-            const txt = document.getElementById('prayer-input').value.trim();
-            if (!txt) { showToast("내용을 입력해주세요.", "fa-exclamation"); return; }
-            const todayStr = new Date().toLocaleDateString('ko-KR');
-            const idx = currentUserData.history.findIndex(item => item.date === todayStr);
-            if (idx !== -1) {
-                currentUserData.history[idx].prayer = txt;
-                saveUserDataToServer();
-                
-                // 저장 시에는 확인 없이 바로 닫기 (히스토리 뒤로가기로 닫음)
-                history.back();
-                setTimeout(() => { showToast("기도가 저장되었습니다."); }, 300);
-            } else { showToast("말씀을 먼저 받아주세요.", "fa-times"); }
-        }
 
         function editName() {
             document.getElementById('user-name-input').value = currentUserData.name;
             openModal('name-modal');
         }
 
-        function openPrayerModal() {
-            const todayStr = new Date().toLocaleDateString('ko-KR');
-            const item = currentUserData.history.find(i => i.date === todayStr);
-            document.getElementById('prayer-input').value = (item && item.prayer) ? item.prayer : "";
-            openModal('prayer-modal');
+        // --- [성경 읽기 로직] ---
+        let currentBibleTab = 'old';
+        let currentBook = '';
+
+        function openBibleModal() {
+            openModal('bible-modal');
+            renderBibleBooks();
         }
+
+        function switchTestament(type) {
+            currentBibleTab = type;
+            document.querySelectorAll('.bible-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.bible-tab[onclick="switchTestament('${type}')"]`).classList.add('active');
+            renderBibleBooks(); // 탭 전환 시 필터링 초기화하고 목록 렌더링
+            document.querySelector('.bible-search-input').value = ''; // 검색어 초기화
+        }
+
+        // 검색 기능 포함된 렌더링
+        function renderBibleBooks() {
+            const container = document.getElementById('bible-books');
+            container.innerHTML = '';
+            document.getElementById('bible-selector').style.display = 'block';
+            document.getElementById('chapter-selector').style.display = 'none';
+            document.getElementById('bible-viewer').style.display = 'none';
+
+            // 현재 탭(구약/신약)의 모든 책을 가져옴
+            const allBooks = bibleList[currentBibleTab];
+            
+            // 그 중에서 검색어를 포함하는 책만 필터링 (검색어 없으면 전체)
+            const keyword = document.querySelector('.bible-search-input').value.trim();
+            const filteredBooks = allBooks.filter(book => book.includes(keyword));
+
+            if (filteredBooks.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#aaa;">검색 결과가 없습니다.</div>';
+                return;
+            }
+
+            filteredBooks.forEach(book => {
+                const btn = document.createElement('button');
+                btn.className = 'bible-book-btn';
+                btn.innerText = book;
+                btn.onclick = () => selectBook(book);
+                container.appendChild(btn);
+            });
+        }
+
+        // 검색창에 입력할 때마다 실행
+        function filterBible(val) {
+            renderBibleBooks(); 
+        }
+
+        function selectBook(book) {
+            currentBook = book;
+            document.getElementById('selected-book-name').innerText = book;
+            document.getElementById('bible-selector').style.display = 'none';
+            document.getElementById('chapter-selector').style.display = 'block';
+            
+            const container = document.getElementById('chapter-grid');
+            container.innerHTML = '';
+            container.style.display = 'grid';
+
+            // bible_text.js의 bibleChapterCounts 객체에서 장 수 가져옴 (없으면 20)
+            const count = (typeof bibleChapterCounts !== 'undefined' && bibleChapterCounts[book]) ? bibleChapterCounts[book] : 20; 
+            
+            for (let i = 1; i <= count; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'chapter-btn';
+                btn.innerText = i + "장";
+                btn.onclick = () => showBibleText(book, i);
+                container.appendChild(btn);
+            }
+        }
+
+        function showBibleText(book, chapter) {
+            document.getElementById('chapter-selector').style.display = 'none';
+            document.getElementById('bible-viewer').style.display = 'block';
+            document.getElementById('bible-text-title').innerText = `${book} ${chapter}장`;
+            
+            const contentDiv = document.getElementById('bible-text-content');
+            
+            // bible_text.js에서 데이터 확인
+            if (typeof bibleTextData !== 'undefined' && bibleTextData[book] && bibleTextData[book][chapter]) {
+                contentDiv.innerText = bibleTextData[book][chapter];
+            } else {
+                contentDiv.innerHTML = `<p style="color:#999; text-align:center; padding:30px;">[데이터 없음]<br>아직 말씀 데이터가 입력되지 않았습니다.<br>bible_text.js 파일을 확인해주세요.</p>`;
+            }
+        }
+
+        function backToBooks() {
+            document.getElementById('chapter-selector').style.display = 'none';
+            document.getElementById('bible-selector').style.display = 'block';
+            document.querySelector('.bible-search-input').value = ''; // 돌아갈 때 검색어 초기화
+            renderBibleBooks();
+        }
+        function backToChapters() {
+            document.getElementById('bible-viewer').style.display = 'none';
+            document.getElementById('chapter-selector').style.display = 'block';
+        }
+        // -------------------------
+
         function renderHistory() {
             const list = document.getElementById('history-list'); list.innerHTML = '';
             if(!currentUserData.history || currentUserData.history.length === 0) { list.innerHTML = "<div style='text-align:center; color:#aaa; margin-top:50px;'>기록이 없습니다.</div>"; return; }
             currentUserData.history.forEach((item, idx) => {
                 const div = document.createElement('div'); div.className = 'history-item'; div.onclick = () => showHistoryDetail(idx);
-                const tag = item.prayer ? `<span class="h-tag"><i class="fa-solid fa-check"></i> 기도완료</span>` : ``;
-                div.innerHTML = `<div class="h-date"><span>${item.date}</span> ${tag}</div><div class="h-verse">${item.verse.split('\n')[0]}...</div><div class="h-source">${item.source}</div>`;
+                div.innerHTML = `<div class="h-date"><span>${item.date}</span></div><div class="h-verse">${item.verse.split('\n')[0]}...</div><div class="h-source">${item.source}</div>`;
                 list.appendChild(div);
             });
         }
         function showHistoryDetail(idx) {
             const item = currentUserData.history[idx]; if(!item) return;
-            const html = item.prayer ? `<div class="prayer-content">${item.prayer.replace(/\n/g, '<br>')}</div>` : `<div style="color:#aaa; font-size:0.9rem; text-align:center; padding:20px;">기도가 없습니다.</div>`;
-            document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div><div class="detail-prayer-box"><span class="prayer-label"><i class="fa-solid fa-pen-nib"></i> 나의 기도</span>${html}</div>`;
+            document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div>`;
             openModal('detail-modal');
         }
         
@@ -509,33 +680,20 @@
             requestAnimationFrame(() => t.classList.add('show')); setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2500);
         }
 
-        // [핵심 1] 모달 열 때 '가짜 역사' 추가 (뒤로가기 시 앱 종료 방지)
         function openModal(id) { 
             const m = document.getElementById(id); 
             m.style.display = 'flex'; 
             setTimeout(() => m.classList.add('show'), 10); 
             document.body.style.overflow = 'hidden';
-            // 가짜 역사 추가
             window.history.pushState({modal: id}, '', window.location.pathname);
         }
         
-        // [핵심 2] 닫기 버튼을 눌렀을 때 안전장치
         function closeModal(id) { 
-            // 기도 모달이면서 내용이 있으면 확인
-            if (id === 'prayer-modal') {
-                const text = document.getElementById('prayer-input').value.trim();
-                if (text.length > 0) {
-                    if (!confirm("작성 중인 내용이 사라집니다. 정말 닫으시겠습니까?")) return;
-                }
-            }
-            
-            // 여기서 history.back()을 호출하면, 아래 window.onpopstate 이벤트가 실행되면서 모달이 닫힘
             window.history.back();
         }
         
         function closeDetailModal() { window.history.back(); } 
 
-        // [핵심 3] 브라우저(폰) 뒤로가기 버튼 감지 -> 모달만 닫기
         window.onpopstate = function(event) {
             const modals = document.querySelectorAll('.modal-overlay.show');
             modals.forEach(m => {
