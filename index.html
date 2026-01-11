@@ -880,8 +880,37 @@
             const lst = msgs[slot]; m.innerHTML = lst[new Date().getDate() % lst.length];
         }
         function setTodayDateDisplay() { const t = new Date(); document.getElementById('card-date').innerText = `${t.getFullYear()}. ${t.getMonth() + 1}. ${t.getDate()}`; }
+// ▼ 이 부분이 없어서 에러가 나는 겁니다. 복사해서 넣으세요!
+        function openModal(id) { 
+            const m = document.getElementById(id); 
+            if(m) {
+                m.style.display = 'flex'; 
+                setTimeout(() => m.classList.add('show'), 10); 
+                document.body.style.overflow = 'hidden';
+                // 모달을 열 때 히스토리를 남겨서 '뒤로가기'로 닫을 수 있게 함
+                window.history.pushState({modal: id}, '', window.location.pathname);
+            }
+        }
+        
+        function closeModal(id) { 
+            if(id === 'bible-modal') releaseWakeLock();
+            window.history.back(); // 뒤로가기를 실행하여 모달을 닫음
+        }
+        
+        function closeDetailModal() { window.history.back(); } 
 
+        window.onpopstate = function(event) {
+            const modals = document.querySelectorAll('.modal-overlay.show');
+            modals.forEach(m => { 
+                m.classList.remove('show'); 
+                setTimeout(() => { m.style.display = 'none'; document.body.style.overflow = ''; }, 300); 
+            });
+            closeActionSheet();
+            releaseWakeLock(); 
+        }
+        // ▲ 여기까지
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
+
