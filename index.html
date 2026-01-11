@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="color-scheme" content="light only">
+    <meta name="color-scheme" content="light dark">
     
     <title>기도하는 어린 양 홀리</title>
     
@@ -13,11 +13,29 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <style>
+        /* [테마 변수 정의] */
         :root { 
-            color-scheme: light; 
             --bg-color: #f4f1ea; 
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-sub: #555555;
             --accent-color: #967e76; 
-            --card-border: 1px solid #e0dcd5; 
+            --border-color: #e0dcd5;
+            --bible-bg: #ffffff;
+            --input-bg: #fafafa;
+            --bible-font-size: 1.1rem;
+        }
+
+        /* 다크 모드 변수 override */
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --card-bg: #2c2c2c;
+            --text-main: #e0e0e0;
+            --text-sub: #aaaaaa;
+            --accent-color: #b09e96; 
+            --border-color: #444444;
+            --bible-bg: #2c2c2c;
+            --input-bg: #3a3a3a;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -28,15 +46,16 @@
             min-height: 100dvh; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             background-color: var(--bg-color); 
+            color: var(--text-main);
             overflow-x: hidden;
-            color: #333333 !important;
-            -webkit-user-select: none; /* 롱프레스 시 텍스트 선택 방지 */
-            user-select: none;
+            -webkit-user-select: none; user-select: none;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
+        /* 인트로 */
         #intro-screen { 
             display: none; 
             flex-direction: column; align-items: center; justify-content: center;
@@ -45,33 +64,37 @@
             animation: fadeInUp 0.5s ease-out;
         }
         .intro-img { width: 180px; margin-bottom: 30px; animation: float 3s ease-in-out infinite; }
-        .intro-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: #555; margin-bottom: 40px; line-height: 1.6; }
+        .intro-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
         .open-verse-btn {
             background: var(--accent-color); color: white; border: none; padding: 15px 40px;
             border-radius: 30px; font-size: 1.1rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(150, 126, 118, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
             transition: transform 0.1s;
         }
         .open-verse-btn:active { transform: scale(0.95); }
 
         #main-content { display: none; width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 20px; }
 
-        .logo-area { margin-bottom: 10px; height: 50px; display: flex; align-items: center; justify-content: center; }
+        /* 상단 영역 (로고 + 설정 버튼) */
+        .top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; position: absolute; top: 0; left: 0; z-index: 20; }
+        .settings-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-sub); cursor: pointer; padding: 10px; }
+        
+        .logo-area { margin-top: 40px; margin-bottom: 10px; height: 50px; display: flex; align-items: center; justify-content: center; }
         .custom-logo { max-height: 100%; max-width: 200px; cursor: pointer; display: none; } 
 
         .header-area { position: relative; z-index: 10; text-align: center; margin: 10px 0 20px; padding: 0 20px; width: 100%; }
-        .greeting-sub { font-size: 0.9rem; color: #967e76; margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
-        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: #333333 !important; line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
-        .user-name-highlight { color: #967e76; border-bottom: 2px solid rgba(150, 126, 118, 0.3); cursor: pointer; }
-        .edit-icon { font-size: 0.9rem; color: #bbb; margin-left: 5px; cursor: pointer; }
+        .greeting-sub { font-size: 0.9rem; color: var(--accent-color); margin-bottom: 8px; font-weight: 500; letter-spacing: 1px; }
+        .greeting-main { font-family: 'Gowun Batang', serif; font-size: 1.5rem; color: var(--text-main); line-height: 1.4; font-weight: 700; white-space: pre-wrap; }
+        .user-name-highlight { color: var(--accent-color); border-bottom: 2px solid rgba(150, 126, 118, 0.3); cursor: pointer; }
 
+        /* 카드 스타일 */
         .card-wrapper { position: relative; z-index: 2; width: 90%; max-width: 380px; margin-bottom: 30px; animation: fadeInUp 0.8s ease-out; }
         .card { 
-            background: #ffffff !important; 
-            border: var(--card-border); border-radius: 25px; padding: 35px 25px; 
-            box-shadow: 0 10px 30px rgba(140, 130, 120, 0.15); 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color); border-radius: 25px; padding: 35px 25px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
             text-align: center; display: flex; flex-direction: column; position: relative;
-            color: #333333 !important; 
+            color: var(--text-main);
         }
         
         #hidden-capture-zone {
@@ -96,56 +119,75 @@
         .verse-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; margin-bottom: 25px; }
         .verse-text { 
             font-family: 'Gowun Batang', serif; font-size: 1.3rem; 
-            color: #333333; 
+            color: var(--text-main); 
             line-height: 1.75; font-weight: 700; word-break: keep-all; white-space: pre-wrap; margin-bottom: 15px; 
         }
-        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: #967e76; font-weight: 600; }
+        .verse-source { font-family: 'Gowun Batang', serif; font-size: 0.95rem; color: var(--accent-color); font-weight: 600; }
         .meaning-box { 
-            font-size: 0.95rem; color: #555555; 
-            line-height: 1.65; background-color: #faf9f7; padding: 20px; border-radius: 15px; text-align: left; border: 1px solid #eee; 
+            font-size: 0.95rem; color: var(--text-sub); 
+            line-height: 1.65; background-color: var(--bg-color); padding: 20px; border-radius: 15px; text-align: left; border: 1px solid var(--border-color); 
         }
 
         .bottom-controls { position: relative; z-index: 10; display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; justify-content: center; animation: fadeInUp 1s ease-out; }
-        .ctrl-btn { background: white; border: var(--card-border); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
+        .ctrl-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--accent-color); padding: 12px 20px; border-radius: 50px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.05); font-weight: 600; }
         .ctrl-btn:hover, .ctrl-btn:active { background: var(--accent-color); color: white; transform: translateY(-2px); }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s ease; z-index: 6000; }
         .modal-overlay.show { opacity: 1; }
         
         .modal-card { 
-            background: white; width: 95%; max-width: 400px; height: 92vh; 
+            background: var(--card-bg); width: 95%; max-width: 400px; height: 92vh; 
             padding: 20px; border-radius: 20px; text-align: center; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid #fff; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25); border: 1px solid var(--border-color); 
             display: flex; flex-direction: column; overflow: hidden; position: relative;
             transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            color: var(--text-main);
         }
         .modal-overlay.show .modal-card { transform: translateY(0); }
-        #name-modal { z-index: 7000; height: auto; padding: 30px; max-height: 85vh; }
         
-        /* [수정] 성경 뷰어 헤더: 타이틀 삭제, 닫기 버튼 우측 상단 배치 */
+        #name-modal { z-index: 7000; height: auto; padding: 30px; max-height: 85vh; }
+        /* 설정 모달 */
+        #settings-modal { z-index: 7500; height: auto; padding: 25px; max-height: 80vh; justify-content: start; text-align: left; }
+
+        .settings-section { margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .settings-section:last-child { border-bottom: none; }
+        .settings-label { font-size: 0.95rem; font-weight: bold; color: var(--text-sub); margin-bottom: 15px; display: block; }
+        
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .toggle-switch { position: relative; width: 50px; height: 26px; background: #ddd; border-radius: 20px; transition: 0.3s; }
+        .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .toggle-checkbox:checked + .toggle-switch { background: var(--accent-color); }
+        .toggle-checkbox:checked + .toggle-switch::after { left: 27px; }
+        .toggle-checkbox { display: none; }
+
+        .font-size-controls { display: flex; justify-content: space-between; gap: 10px; }
+        .font-btn { flex: 1; padding: 10px; border: 1px solid var(--border-color); background: var(--input-bg); border-radius: 10px; cursor: pointer; color: var(--text-main); font-weight: bold; font-size: 0.9rem; }
+        .font-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+
+        /* 성경 뷰어 헤더 */
         .bible-header-controls { 
             position: absolute; top: 15px; right: 15px; z-index: 50; 
         }
         .close-bible-btn {
-            background: rgba(255,255,255,0.8); border: none; font-size: 1.8rem; cursor: pointer; color: #999; 
+            background: rgba(255,255,255,0.2); border: none; font-size: 1.8rem; cursor: pointer; color: var(--text-sub); 
             width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(2px); transition: color 0.2s;
         }
-
+        
         .bible-top-controls { margin-bottom: 10px; margin-top: 10px; flex-shrink: 0; padding: 0 5px; }
         
         .bible-search-box { position: relative; width: 100%; margin-bottom: 15px; }
-        .bible-search-input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px; border: 1px solid #ddd; background: #f9f9f9; font-family: 'Pretendard'; font-size: 0.95rem; outline: none; transition: 0.3s; }
-        .bible-search-input:focus { border-color: var(--accent-color); background: white; box-shadow: 0 0 0 3px rgba(150, 126, 118, 0.1); }
+        .bible-search-input { width: 100%; padding: 12px 15px 12px 40px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--input-bg); font-family: 'Pretendard'; font-size: 0.95rem; outline: none; transition: 0.3s; color: var(--text-main); }
+        .bible-search-input:focus { border-color: var(--accent-color); background: var(--card-bg); box-shadow: 0 0 0 3px rgba(150, 126, 118, 0.1); }
         .bible-search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
         .bible-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; padding: 5px; flex: 1; margin-top: 10px;}
-        .bible-book-btn { background: #fafafa; border: 1px solid #eee; padding: 14px 5px; border-radius: 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; color: #444; transition: all 0.1s; }
-        .bible-book-btn:hover { background: #f5f5f5; border-color: #ccc; }
+        .bible-book-btn { background: var(--input-bg); border: 1px solid var(--border-color); padding: 14px 5px; border-radius: 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; color: var(--text-main); transition: all 0.1s; }
+        .bible-book-btn:hover { border-color: #bbb; }
         .bible-book-btn.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 700; }
 
-        .chapter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; display: none; padding: 5px; flex: 1; margin-top: 40px; /* 닫기 버튼 공간 확보 */ }
-        .chapter-btn { background: white; border: 1px solid #eee; padding: 12px 5px; border-radius: 10px; cursor: pointer; font-weight: bold; color: #555; font-size: 0.9rem; }
+        .chapter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; overflow-y: auto; display: none; padding: 5px; flex: 1; margin-top: 40px; }
+        .chapter-btn { background: var(--input-bg); border: 1px solid var(--border-color); padding: 12px 5px; border-radius: 10px; cursor: pointer; font-weight: bold; color: var(--text-main); font-size: 0.9rem; }
         .chapter-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
         .bible-text-view { 
@@ -156,39 +198,53 @@
             position: relative; scroll-behavior: smooth; 
         }
         
-        .bible-sticky-header { position: sticky; top: 0; background: rgba(255,255,255,0.98); z-index: 10; padding: 15px 5px; border-bottom: 1px solid #eee; margin-bottom: 10px; font-weight: bold; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center; }
+        .bible-sticky-header { position: sticky; top: 0; background: var(--card-bg); z-index: 10; padding: 15px 5px; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; font-weight: bold; color: var(--accent-color); display: flex; justify-content: space-between; align-items: center; opacity: 0.98; }
         
-        .bible-chapter-divider { margin: 40px 0 20px; text-align: center; border-bottom: 1px solid #eee; line-height: 0.1em; color: var(--accent-color); font-weight: bold; font-size: 1.1rem; }
-        .bible-chapter-divider span { background: #fff; padding: 0 15px; }
+        .bible-chapter-divider { 
+            margin: 50px 0 30px; 
+            display: flex; align-items: center; justify-content: center;
+            gap: 15px; color: var(--accent-color); font-weight: bold;
+        }
+        .bible-chapter-divider::before, .bible-chapter-divider::after {
+            content: ''; height: 1px; background: var(--border-color); flex: 1;
+        }
+        .bible-chapter-divider span {
+            background: var(--bg-color); padding: 8px 16px; border-radius: 20px; 
+            font-size: 0.95rem; color: var(--text-sub); box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
 
-        /* [수정] 꾹 눌러야(Long Press) 피드백 */
         .bible-verse-row { margin-bottom: 10px; line-height: 1.7; cursor: pointer; padding: 6px 10px; border-radius: 8px; transition: background 0.2s; user-select: none; }
-        .bible-verse-row.active-press { background-color: #f0f0f0; transform: scale(0.99); } 
-        .bible-verse-num { font-size: 0.85rem; color: var(--accent-color); font-weight: bold; margin-right: 8px; vertical-align: baseline; user-select: none; }
-        .bible-verse-text { font-family: 'Gowun Batang'; font-size: 1.1rem; color: #333; letter-spacing: -0.02em; }
+        .bible-verse-row.active-press { background-color: var(--bg-color); transform: scale(0.99); } 
+        .bible-verse-num { font-size: calc(var(--bible-font-size) * 0.75); color: var(--accent-color); font-weight: bold; margin-right: 8px; vertical-align: baseline; user-select: none; }
+        .bible-verse-text { font-family: 'Gowun Batang'; font-size: var(--bible-font-size); color: var(--text-main); letter-spacing: -0.02em; }
 
         .scroll-top-btn { position: absolute; bottom: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: var(--accent-color); color: white; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 1.2rem; z-index: 20; opacity: 0.9; transition: opacity 0.2s; }
         .scroll-top-btn:hover { opacity: 1; }
 
-        #verse-action-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 25px 20px; z-index: 8000; transform: translateY(100%); transition: transform 0.3s ease-out; box-shadow: 0 -5px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 12px; }
+        #verse-action-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card-bg); border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 25px 20px; z-index: 8000; transform: translateY(100%); transition: transform 0.3s ease-out; box-shadow: 0 -5px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 12px; }
         #verse-action-sheet.show { transform: translateY(0); }
         .action-btn { width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-copy { background: #f4f1ea; color: #333; }
+        .btn-copy { background: var(--bg-color); color: var(--text-main); }
         .btn-share { background: var(--accent-color); color: white; }
-        .btn-cancel { background: white; border: 1px solid #ddd; color: #888; }
+        .btn-cancel { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-sub); }
+
+        .intro-sheep-img { width: 120px; height: auto; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
+        .modal-title { font-family:'Gowun Batang'; font-size: 1.3rem; font-weight:700; margin-bottom:20px; color: var(--text-main); line-height: 1.4; }
+        .modal-input { width:100%; padding:15px; border:1px solid var(--border-color); border-radius: 12px; margin-bottom:20px; font-size: 1rem; outline: none; background: var(--input-bg); font-family: 'Pretendard'; resize: none; color: var(--text-main) !important; }
+        .modal-btn { background: var(--accent-color); color: white; border: none; padding: 15px; border-radius: 15px; font-size: 1rem; cursor: pointer; width: 100%; font-weight: 600; margin-top: 10px; transition: transform 0.1s; }
 
         .history-list-container { text-align: left; width: 100%; }
-        .history-item { background: #faf9f7; padding: 18px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #eee; cursor: pointer; transition: all 0.2s; position: relative; }
-        .h-date { font-size: 0.75rem; color: #999; margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .h-verse { font-family: 'Gowun Batang'; font-size: 1rem; font-weight: 700; color: #444; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .history-item { background: var(--bg-color); padding: 18px; border-radius: 15px; margin-bottom: 12px; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; position: relative; }
+        .h-date { font-size: 0.75rem; color: var(--text-sub); margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .h-verse { font-family: 'Gowun Batang'; font-size: 1rem; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .h-source { font-size: 0.8rem; color: var(--accent-color); margin-top: 2px; }
 
-        .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
-        .back-btn { background: none; border: none; font-size: 1.1rem; color: #666; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; }
+        .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .back-btn { background: none; border: none; font-size: 1.1rem; color: var(--text-sub); cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: 600; }
         .detail-img { width: 100%; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .detail-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: #333; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; font-weight: 700; }
+        .detail-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: var(--text-main); line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; font-weight: 700; }
         .detail-source { color: var(--accent-color); font-weight: bold; margin-bottom: 25px; display: block; text-align: right; }
-        .detail-meaning { font-size: 0.95rem; color: #555; background: #f4f1ea; padding: 20px; border-radius: 15px; text-align: left; margin-bottom: 25px; line-height: 1.6; border: 1px solid #e0dcd5; }
+        .detail-meaning { font-size: 0.95rem; color: var(--text-sub); background: var(--bg-color); padding: 20px; border-radius: 15px; text-align: left; margin-bottom: 25px; line-height: 1.6; border: 1px solid var(--border-color); }
 
         #toast-container { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; align-items: center; width: auto; pointer-events: none; }
         .toast { background: rgba(0, 0, 0, 0.85); color: white; padding: 15px 30px; border-radius: 50px; font-size: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); opacity: 0; transform: translateY(20px); transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; font-weight: 500; }
@@ -216,15 +272,51 @@
     </div>
 
     <div id="name-modal" class="modal-overlay">
-        <div class="modal-card" id="name-modal-card">
+        <div class="modal-card">
             <img src="images/intro_lamb.png" alt="환영합니다" class="intro-sheep-img">
             <div class="modal-title">반갑습니다.<br>성함을 알려주세요.</div>
             <input type="text" id="user-name-input" class="modal-input" placeholder="이름 입력 (최대 5글자)" maxlength="5" style="text-align:center;">
-            <button class="modal-btn" onclick="saveUserName()">시작하기</button>
+            <button class="modal-btn" onclick="saveUserName()">저장하기</button>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="bible-header">
+                <span class="modal-title" style="margin:0;">설정</span>
+                <button onclick="closeModal('settings-modal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-sub);">&times;</button>
+            </div>
+            
+            <div class="settings-section">
+                <label class="toggle-row">
+                    <span class="settings-label" style="margin:0;"><i class="fa-solid fa-moon"></i> 다크 모드</span>
+                    <input type="checkbox" id="dark-mode-toggle" class="toggle-checkbox" onchange="toggleDarkMode()">
+                    <span class="toggle-switch"></span>
+                </label>
+            </div>
+
+            <div class="settings-section">
+                <span class="settings-label"><i class="fa-solid fa-font"></i> 글자 크기</span>
+                <div class="font-size-controls">
+                    <button class="font-btn" onclick="setFontSize(0)">작게</button>
+                    <button class="font-btn" onclick="setFontSize(1)">보통</button>
+                    <button class="font-btn" onclick="setFontSize(2)">크게</button>
+                    <button class="font-btn" onclick="setFontSize(3)">더 크게</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <span class="settings-label"><i class="fa-solid fa-user-pen"></i> 이름 변경</span>
+                <button class="modal-btn" onclick="closeModal('settings-modal'); openModal('name-modal');" style="margin-top:0;">이름 수정하기</button>
+            </div>
         </div>
     </div>
     
     <div id="main-content" style="display:none;">
+        <div class="top-bar">
+            <div></div> <button class="settings-btn" onclick="openModal('settings-modal')"><i class="fa-solid fa-gear"></i></button>
+        </div>
+
         <div class="logo-area">
             <a id="logo-link" href="#" target="_blank"><img id="custom-logo" class="custom-logo" src="" alt="로고"></a>
         </div>
@@ -299,7 +391,7 @@
     </div>
 
     <div id="verse-action-sheet">
-        <div style="text-align:center; margin-bottom:10px; color:#666; font-size:0.9rem;" id="selected-verse-info"></div>
+        <div style="text-align:center; margin-bottom:10px; color:var(--text-sub); font-size:0.9rem;" id="selected-verse-info"></div>
         <button class="action-btn btn-copy" onclick="copySelectedVerse()"><i class="fa-regular fa-copy"></i> 복사하기</button>
         <button class="action-btn btn-share" onclick="shareSelectedVerse()"><i class="fa-solid fa-share-nodes"></i> 공유하기</button>
         <button class="action-btn btn-cancel" onclick="closeActionSheet()">취소</button>
@@ -307,9 +399,9 @@
 
     <div id="history-modal" class="modal-overlay">
         <div class="modal-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:15px;">
                 <span class="modal-title" style="margin:0;">나의 묵상 기록</span>
-                <button onclick="closeModal('history-modal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#999;">&times;</button>
+                <button onclick="closeModal('history-modal')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-sub);">&times;</button>
             </div>
             <div id="history-list" class="history-list-container"></div>
         </div>
@@ -319,7 +411,7 @@
         <div class="modal-card" style="text-align: left;">
             <div class="detail-header">
                 <button onclick="closeDetailModal()" class="back-btn"><i class="fa-solid fa-chevron-left"></i> 목록으로</button>
-                <button onclick="closeDetailModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#999;">&times;</button>
+                <button onclick="closeDetailModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-sub);">&times;</button>
             </div>
             <div id="detail-content-area"></div>
         </div>
@@ -348,9 +440,14 @@
         const LOCK_TIMEOUT = 3 * 24 * 60 * 60 * 1000; 
         const STORAGE_KEY_AUTH = 'bibleAuthTime';
         const STORAGE_KEY_USER_ID = 'bibleUserId';
-        
+        const KEY_LAST_BIBLE_POS = 'lastBiblePos';
+        const KEY_FONT_SIZE = 'bibleFontSize';
+        const KEY_DARK_MODE = 'bibleDarkMode';
+        const KEY_LAST_VISIT = 'bibleLastVisit';
+
         let currentUserId = null; 
         let currentUserData = { name: "", history: [], today: null };
+        let wakeLock = null; 
 
         const logoRules = [
             { prefix: 'church_', img: 'images/church_logo.png', link: 'https://www.google.com' },
@@ -368,6 +465,22 @@
                 document.getElementById('verse').innerText = "데이터 오류: data.js를 확인하세요.";
                 return;
             }
+            
+            // [설정 로드]
+            const savedFont = localStorage.getItem(KEY_FONT_SIZE);
+            if(savedFont) {
+                document.documentElement.style.setProperty('--bible-font-size', savedFont);
+                // 버튼 상태 업데이트
+                const index = fontSizes.indexOf(savedFont);
+                if(index !== -1) updateFontBtns(index);
+            }
+            
+            const savedTheme = localStorage.getItem(KEY_DARK_MODE);
+            if(savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('dark-mode-toggle').checked = true;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const tagId = urlParams.get('tag');
             if (tagId) { verifyKeyAndLogin(tagId); } else { checkSessionAndLoad(); }
@@ -430,18 +543,77 @@
                     if (!currentUserData.history) currentUserData.history = [];
                     setGreeting(currentUserData.name);
                     checkAndLoadVerse(); 
-                    document.getElementById('intro-screen').style.display = 'flex';
+                    
+                    // [인트로 자동 패스 로직]
+                    const todayStr = new Date().toLocaleDateString();
+                    const lastVisit = localStorage.getItem(KEY_LAST_VISIT);
+                    
+                    if (lastVisit === todayStr) {
+                        // 오늘 이미 방문했으면 인트로 스킵
+                        document.getElementById('main-content').style.display = 'flex';
+                        document.getElementById('main-content').style.animation = 'fadeInUp 0.8s ease-out';
+                    } else {
+                        // 첫 방문이면 인트로 보여줌
+                        document.getElementById('intro-screen').style.display = 'flex';
+                        localStorage.setItem(KEY_LAST_VISIT, todayStr);
+                    }
+
                 } else { setTimeout(() => openModal('name-modal'), 500); }
             }).catch(err => { showToast("데이터를 불러오지 못했습니다.", "fa-times"); });
         }
 
         function saveUserDataToServer() { if (!currentUserId) return; db.ref('users/' + currentUserId).set(currentUserData).catch(() => showToast("저장 실패", "fa-times")); }
-        function saveUserName() { const input = document.getElementById('user-name-input'); const name = input.value.trim(); if (name.length > 0) { currentUserData.name = name; saveUserDataToServer(); closeModal('name-modal'); setGreeting(name); checkAndLoadVerse(); document.getElementById('intro-screen').style.display = 'flex'; } else { showToast("이름을 입력해주세요.", "fa-exclamation"); } }
+        function saveUserName() { 
+            const input = document.getElementById('user-name-input'); 
+            const name = input.value.trim(); 
+            if (name.length > 0) { 
+                currentUserData.name = name; 
+                saveUserDataToServer(); 
+                // 모달 닫기 (설정에서 왔으면 설정으로 돌아가지 않고 그냥 닫음)
+                closeModal('name-modal'); 
+                setGreeting(name); 
+                checkAndLoadVerse(); 
+                
+                // 만약 인트로 화면이었다면 메인으로 이동
+                if(document.getElementById('intro-screen').style.display !== 'none') {
+                    showMainContent();
+                } else {
+                    showToast("이름이 변경되었습니다.");
+                }
+            } else { showToast("이름을 입력해주세요.", "fa-exclamation"); } 
+        }
         function showMainContent() { const intro = document.getElementById('intro-screen'); intro.style.transition = 'opacity 0.5s'; intro.style.opacity = '0'; setTimeout(() => { intro.style.display = 'none'; const main = document.getElementById('main-content'); main.style.display = 'flex'; main.style.animation = 'fadeInUp 0.8s ease-out'; }, 500); }
         function checkAndLoadVerse() { const todayStr = new Date().toLocaleDateString('ko-KR'); if (currentUserData.today && currentUserData.today.date === todayStr) { renderVerse(currentUserData.today.data); } else { pickNewDailyVerse(todayStr); } }
         function pickNewDailyVerse(dateStr) { if (!bibleData || bibleData.length === 0) return; const idx = Math.floor(Math.random() * bibleData.length); const data = bibleData[idx]; currentUserData.today = { date: dateStr, data: data }; saveToHistory(dateStr, data); renderVerse(data); saveUserDataToServer(); }
         function saveToHistory(dateStr, data) { if (!currentUserData.history.some(item => item.date === dateStr)) { currentUserData.history.unshift({ date: dateStr, verse: data.verse, source: data.source, image: data.image, meaning: data.meaning, prayer: "" }); if (currentUserData.history.length > 50) currentUserData.history.pop(); } }
         function editName() { document.getElementById('user-name-input').value = currentUserData.name; openModal('name-modal'); }
+
+        // --- [설정 관련 함수] ---
+        const fontSizes = ['0.9rem', '1.1rem', '1.3rem', '1.6rem']; 
+        
+        function setFontSize(index) {
+            const newSize = fontSizes[index];
+            document.documentElement.style.setProperty('--bible-font-size', newSize);
+            localStorage.setItem(KEY_FONT_SIZE, newSize);
+            updateFontBtns(index);
+        }
+        function updateFontBtns(activeIdx) {
+            const btns = document.querySelectorAll('.font-btn');
+            btns.forEach((btn, idx) => {
+                if(idx === activeIdx) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+        function toggleDarkMode() {
+            const chk = document.getElementById('dark-mode-toggle');
+            if(chk.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem(KEY_DARK_MODE, 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem(KEY_DARK_MODE, 'light');
+            }
+        }
 
         // --- [성경 읽기 엔진] ---
         let viewBook = '';
@@ -451,11 +623,42 @@
         let selectedVerseRef = "";
         let isLoadingPrev = false; 
         
-        // [롱프레스 관련 변수]
         let longPressTimer;
-        const longPressDuration = 500; // 0.5초
+        const longPressDuration = 500;
 
-        function openBibleModal() { openModal('bible-modal'); renderBibleBooks(); }
+        async function requestWakeLock() {
+            try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } catch (err) {}
+        }
+        function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release(); wakeLock = null; } }
+
+        function openBibleModal() {
+            openModal('bible-modal');
+            requestWakeLock(); 
+            
+            const lastPos = JSON.parse(localStorage.getItem(KEY_LAST_BIBLE_POS));
+            if (lastPos && lastPos.book && lastPos.chapter) {
+                document.getElementById('bible-selector').style.display = 'none';
+                document.getElementById('bible-viewer').style.display = 'block';
+                
+                viewBook = lastPos.book;
+                viewChapter = lastPos.chapter;
+                
+                document.getElementById('bible-content-area').innerHTML = '';
+                appendChapter(viewBook, viewChapter);
+                setupInfiniteScroll();
+                
+                showToast(`${viewBook} ${viewChapter}장부터 이어봅니다.`, "fa-book-open");
+            } else {
+                renderBibleBooks();
+            }
+        }
+
+        function saveCurrentPosition() {
+            if(viewBook && viewChapter) {
+                const pos = { book: viewBook, chapter: viewChapter };
+                localStorage.setItem(KEY_LAST_BIBLE_POS, JSON.stringify(pos));
+            }
+        }
 
         function renderBibleBooks() {
             const container = document.getElementById('bible-books');
@@ -467,7 +670,7 @@
             const keyword = document.querySelector('.bible-search-input').value.trim();
             const filteredBooks = canonicalBibleList.filter(book => book.includes(keyword));
 
-            if (filteredBooks.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:#aaa;">검색 결과가 없습니다.</div>'; return; }
+            if (filteredBooks.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-sub);">검색 결과가 없습니다.</div>'; return; }
 
             filteredBooks.forEach(book => {
                 const btn = document.createElement('button');
@@ -495,7 +698,10 @@
                 const btn = document.createElement('button');
                 btn.className = 'chapter-btn';
                 btn.innerText = i + "장"; 
-                btn.onclick = () => initViewer(book, i);
+                btn.onclick = () => {
+                    initViewer(book, i);
+                    saveCurrentPosition(); 
+                };
                 container.appendChild(btn);
             }
         }
@@ -567,7 +773,6 @@
                 const verses = bibleTextData[book][chapter];
                 for (const verNum in verses) {
                     const safeText = verses[verNum].replace(/'/g, "");
-                    // [수정] onclick 제거, 데이터 속성에 정보 저장
                     content += `<div class="bible-verse-row" 
                         data-book="${book}" data-chap="${chapter}" data-ver="${verNum}" data-text="${safeText}"
                         onmousedown="handlePressStart(this)" ontouchstart="handlePressStart(this)"
@@ -578,16 +783,14 @@
                     </div>`;
                 }
             } else {
-                content += `<div style="padding:20px; text-align:center; color:#999;">데이터 준비 중입니다.</div>`;
+                content += `<div style="padding:20px; text-align:center; color:var(--text-sub);">데이터 준비 중입니다.</div>`;
             }
             wrapper.innerHTML = content;
             return wrapper;
         }
 
-        // [롱프레스 핸들러]
         function handlePressStart(el) {
             longPressTimer = setTimeout(() => {
-                // 롱프레스 성공 시
                 el.classList.add('active-press');
                 const { book, chap, ver, text } = el.dataset;
                 openVerseAction(book, chap, ver, text);
@@ -628,6 +831,10 @@
                             const b = entry.target.dataset.book;
                             const c = entry.target.dataset.chapter;
                             document.getElementById('current-chapter-title').innerText = `${b} ${c}장`;
+                            
+                            viewBook = b;
+                            viewChapter = parseInt(c);
+                            saveCurrentPosition();
                         }
                     });
                 }, { root: document.getElementById('bible-viewer'), threshold: 0.1 });
@@ -645,10 +852,8 @@
         }
         function closeActionSheet() { document.getElementById('verse-action-sheet').classList.remove('show'); }
         
-        // [바깥 클릭 감지]
-        document.addEventListener('click', function(event) {
+        window.addEventListener('click', function(event) {
             const sheet = document.getElementById('verse-action-sheet');
-            // 시트가 열려있고, 클릭한 대상이 시트 내부가 아니고, 절(Row)도 아닐 때 닫음
             if (sheet.classList.contains('show') && !sheet.contains(event.target) && !event.target.closest('.bible-verse-row')) {
                 closeActionSheet();
             }
@@ -675,11 +880,17 @@
             document.getElementById('bible-viewer').style.display = 'none';
             document.getElementById('chapter-selector').style.display = 'flex';
             if(observer) { observer.disconnect(); observer = null; }
+            releaseWakeLock(); 
+        }
+        
+        function closeModal(id) { 
+            if(id === 'bible-modal') releaseWakeLock();
+            window.history.back(); 
         }
 
         function renderHistory() {
             const list = document.getElementById('history-list'); list.innerHTML = '';
-            if(!currentUserData.history || currentUserData.history.length === 0) { list.innerHTML = "<div style='text-align:center; color:#aaa; margin-top:50px;'>기록이 없습니다.</div>"; return; }
+            if(!currentUserData.history || currentUserData.history.length === 0) { list.innerHTML = "<div style='text-align:center; color:var(--text-sub); margin-top:50px;'>기록이 없습니다.</div>"; return; }
             currentUserData.history.forEach((item, idx) => {
                 const div = document.createElement('div'); div.className = 'history-item'; div.onclick = () => showHistoryDetail(idx);
                 div.innerHTML = `<div class="h-date"><span>${item.date}</span></div><div class="h-verse">${item.verse.split('\n')[0]}...</div><div class="h-source">${item.source}</div>`;
@@ -688,7 +899,7 @@
         }
         function showHistoryDetail(idx) {
             const item = currentUserData.history[idx]; if(!item) return;
-            document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div>`;
+            document.getElementById('detail-content-area').innerHTML = `<div style="font-size:0.8rem; color:var(--text-sub); margin-bottom:10px;">${item.date}</div><img src="images/${item.image}" class="detail-img"><div class="detail-text">${item.verse}</div><div class="detail-source">${item.source}</div><div class="detail-meaning">${item.meaning}</div>`;
             openModal('detail-modal');
         }
         
@@ -726,13 +937,17 @@
             const m = document.getElementById(id); m.style.display = 'flex'; setTimeout(() => m.classList.add('show'), 10); document.body.style.overflow = 'hidden';
             window.history.pushState({modal: id}, '', window.location.pathname);
         }
-        function closeModal(id) { window.history.back(); }
+        function closeModal(id) { 
+            if(id === 'bible-modal') releaseWakeLock();
+            window.history.back(); 
+        }
         function closeDetailModal() { window.history.back(); } 
 
         window.onpopstate = function(event) {
             const modals = document.querySelectorAll('.modal-overlay.show');
             modals.forEach(m => { m.classList.remove('show'); setTimeout(() => { m.style.display = 'none'; document.body.style.overflow = ''; }, 300); });
             closeActionSheet();
+            releaseWakeLock(); 
         };
 
         function renderVerse(d) { document.getElementById('verse-img').src = 'images/' + d.image; document.getElementById('verse').innerText = d.verse; document.getElementById('source').innerText = d.source; document.getElementById('meaning').innerText = d.meaning; }
