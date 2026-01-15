@@ -39,8 +39,7 @@
         }
 
         @keyframes fadeInUp { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
-
+        
         /* 인트로 */
         #intro-screen { 
             display: none; 
@@ -49,7 +48,7 @@
             background-color: var(--bg-color);
             animation: fadeInUp 0.5s ease-out;
         }
-        .intro-img { width: 180px; margin-bottom: 30px; animation: float 3s ease-in-out infinite; }
+        .intro-img { width: 180px; margin-bottom: 30px; }
         .intro-text { font-family: 'Gowun Batang'; font-size: 1.2rem; color: var(--text-sub); margin-bottom: 40px; line-height: 1.6; }
         .open-verse-btn {
             background: var(--accent-color); color: white; border: none; padding: 15px 40px;
@@ -138,9 +137,7 @@
         }
         .modal-overlay.show .modal-card { transform: translateY(0); }
         
-        /* 설정 모달 */
         #settings-modal .modal-card { height: auto; max-height: 80vh; padding: 25px; display: block; overflow-y: auto; }
-        
         #name-modal { z-index: 7000; height: auto; padding: 30px; max-height: 85vh; }
 
         .modal-header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
@@ -176,34 +173,36 @@
         .bible-search-input:focus { border-color: var(--accent-color); background: var(--card-bg); box-shadow: 0 0 0 3px rgba(150, 126, 118, 0.1); }
         .bible-search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
-        /* [수정] 버튼 스타일: 3열 고정, 균일한 높이, 중앙 정렬 */
+        /* [수정] 성경 목록: 3열 고정, 높이 통일 */
         .bible-grid { 
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; 
             overflow-y: auto; padding: 5px; flex: 1; margin-top: 10px; 
         }
         .bible-book-btn { 
             background: var(--input-bg); border: 1px solid var(--border-color); 
-            padding: 5px; height: 50px; /* 높이 고정 */
+            height: 50px; /* 고정 높이 */
             border-radius: 12px; font-size: 0.95rem; font-weight: 500; 
             cursor: pointer; color: var(--text-main); transition: all 0.1s;
             display: flex; align-items: center; justify-content: center; /* 중앙 정렬 */
-            text-align: center; line-height: 1.2; word-break: keep-all; /* 줄바꿈 제어 */
+            text-align: center; word-break: keep-all; line-height: 1.2;
         }
         .bible-book-btn:hover { border-color: #bbb; }
         .bible-book-btn.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 700; }
 
-        /* [수정] 장 버튼: 5열 고정 */
+        /* [수정] 장 선택: 5열 고정, 깔끔한 숫자판 스타일 */
         .chapter-grid { 
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; 
-            overflow-y: auto; display: none; padding: 5px; flex: 1; margin-top: 40px; 
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; 
+            overflow-y: auto; display: none; padding: 10px 5px; flex: 1; margin-top: 20px; 
         }
         .chapter-btn { 
-            background: var(--input-bg); border: 1px solid var(--border-color); 
-            padding: 0; height: 45px; /* 높이 고정 */
-            border-radius: 10px; cursor: pointer; font-weight: bold; color: var(--text-main); font-size: 0.9rem;
+            background: var(--card-bg); border: 1px solid var(--border-color); 
+            height: 50px; /* 정사각형 느낌 */
+            border-radius: 15px; cursor: pointer; font-weight: bold; color: var(--text-main); font-size: 1.1rem;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: transform 0.1s;
         }
-        .chapter-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .chapter-btn:hover { border-color: var(--accent-color); color: var(--accent-color); transform: translateY(-2px); }
+        .chapter-btn:active { transform: scale(0.95); }
 
         .bible-text-view { 
             display: none; text-align: left; 
@@ -388,7 +387,8 @@
             <div id="chapter-selector" style="display:none; flex:1; overflow:hidden; flex-direction:column;">
                 <div style="margin-bottom:15px; display:flex; align-items:center; flex-shrink:0;">
                     <button onclick="backToBooks()" class="back-btn" style="margin-right:auto;"><i class="fa-solid fa-chevron-left"></i> 목록으로</button>
-                    <span id="selected-book-name" style="font-weight:bold; color:var(--accent-color); font-size:1.1rem; padding-right: 40px;"></span>
+                    <span id="selected-book-name" style="font-weight:bold; color:var(--accent-color); font-size:1.1rem; padding-right: 20px;"></span>
+                    <span style="font-size:0.9rem; color:#888;">장 선택</span>
                 </div>
                 <div id="chapter-grid" class="chapter-grid"></div>
             </div>
@@ -463,8 +463,6 @@
         let currentUserId = null; 
         let currentUserData = { name: "", history: [], today: null };
         let wakeLock = null; 
-
-        // [중요] 로고 설정이 없을 경우를 대비한 기본값
         let activeLogoConfig = (typeof logoConfig !== 'undefined') ? logoConfig : [];
 
         const canonicalBibleList = [
@@ -477,15 +475,11 @@
                 document.getElementById('verse').innerText = "데이터 오류: data.js를 확인하세요.";
                 return;
             }
-            
             const savedFont = localStorage.getItem(KEY_FONT_SIZE);
             if(savedFont) {
                 document.documentElement.style.setProperty('--bible-font-size', savedFont);
                 const index = fontSizes.indexOf(savedFont);
-                if(index !== -1) {
-                    currentFontSizeIndex = index;
-                    updateFontBtns(index);
-                }
+                if(index !== -1) { currentFontSizeIndex = index; updateFontBtns(index); }
             }
             const savedFamily = localStorage.getItem(KEY_FONT_FAMILY);
             if (savedFamily) setFontFamily(savedFamily, false);
@@ -531,7 +525,9 @@
             const logoImg = document.getElementById('custom-logo');
             const logoLink = document.getElementById('logo-link');
             let matchedRule = null;
-            // logo_config.js에서 불러온 설정 사용
+            if (typeof activeLogoConfig === 'undefined' || !Array.isArray(activeLogoConfig)) {
+                logoImg.style.display = 'none'; return;
+            }
             for (const rule of activeLogoConfig) { if (userId.startsWith(rule.prefix)) { matchedRule = rule; break; } }
             if (matchedRule) { logoImg.src = matchedRule.img; logoLink.href = matchedRule.link; logoImg.style.display = 'block'; } else { logoImg.style.display = 'none'; }
         }
@@ -556,7 +552,6 @@
                     
                     const todayStr = new Date().toLocaleDateString();
                     const lastVisit = localStorage.getItem(KEY_LAST_VISIT);
-                    
                     if (lastVisit === todayStr) {
                         document.getElementById('main-content').style.display = 'flex';
                         document.getElementById('main-content').style.animation = 'fadeInUp 0.8s ease-out';
@@ -564,7 +559,6 @@
                         document.getElementById('intro-screen').style.display = 'flex';
                         localStorage.setItem(KEY_LAST_VISIT, todayStr);
                     }
-
                 } else { setTimeout(() => openModal('name-modal'), 500); }
             }).catch(err => { showToast("데이터를 불러오지 못했습니다.", "fa-times"); });
         }
@@ -601,7 +595,6 @@
         }
         function updateFontBtns(activeIdx) {
             const allBtns = document.querySelectorAll('.font-btn');
-            // 앞 4개만 폰트 사이즈
             for(let i=0; i<4; i++) {
                 if(i === activeIdx) allBtns[i].classList.add('active');
                 else allBtns[i].classList.remove('active');
@@ -633,7 +626,7 @@
         let longPressTimer;
         const longPressDuration = 500;
 
-        async function requestWakeLock() { try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } catch (err) {} }
+        async function requestWakeLock() { if (!('wakeLock' in navigator)) return; try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
         function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release(); wakeLock = null; } }
 
         function openBibleModal() {
@@ -679,7 +672,8 @@
             for (let i = 1; i <= count; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'chapter-btn';
-                btn.innerText = i + "장"; 
+                // [수정] '장' 글자 제거하고 숫자만 표시
+                btn.innerText = i; 
                 btn.onclick = () => initViewer(book, i);
                 container.appendChild(btn);
             }
@@ -822,11 +816,9 @@
         
         window.addEventListener('click', function(event) {
             const sheet = document.getElementById('verse-action-sheet');
-            // 바깥 클릭 시 닫기
             if (sheet.classList.contains('show') && !sheet.contains(event.target) && !event.target.closest('.bible-verse-row')) {
                 closeActionSheet();
             }
-            // 모달 바깥 클릭 시 닫기
             if (event.target.classList.contains('modal-overlay')) {
                 closeModal(event.target.id);
             }
@@ -856,6 +848,16 @@
             releaseWakeLock(); 
         }
         
+        function openModal(id) { 
+            const m = document.getElementById(id); 
+            if(m) {
+                m.style.display = 'flex'; 
+                setTimeout(() => m.classList.add('show'), 10); 
+                document.body.style.overflow = 'hidden';
+                window.history.pushState({modal: id}, '', window.location.pathname);
+            }
+        }
+        
         function closeModal(id) { 
             if(id === 'bible-modal') releaseWakeLock();
             window.history.back(); 
@@ -880,37 +882,8 @@
             const lst = msgs[slot]; m.innerHTML = lst[new Date().getDate() % lst.length];
         }
         function setTodayDateDisplay() { const t = new Date(); document.getElementById('card-date').innerText = `${t.getFullYear()}. ${t.getMonth() + 1}. ${t.getDate()}`; }
-// ▼ 이 부분이 없어서 에러가 나는 겁니다. 복사해서 넣으세요!
-        function openModal(id) { 
-            const m = document.getElementById(id); 
-            if(m) {
-                m.style.display = 'flex'; 
-                setTimeout(() => m.classList.add('show'), 10); 
-                document.body.style.overflow = 'hidden';
-                // 모달을 열 때 히스토리를 남겨서 '뒤로가기'로 닫을 수 있게 함
-                window.history.pushState({modal: id}, '', window.location.pathname);
-            }
-        }
-        
-        function closeModal(id) { 
-            if(id === 'bible-modal') releaseWakeLock();
-            window.history.back(); // 뒤로가기를 실행하여 모달을 닫음
-        }
-        
-        function closeDetailModal() { window.history.back(); } 
 
-        window.onpopstate = function(event) {
-            const modals = document.querySelectorAll('.modal-overlay.show');
-            modals.forEach(m => { 
-                m.classList.remove('show'); 
-                setTimeout(() => { m.style.display = 'none'; document.body.style.overflow = ''; }, 300); 
-            });
-            closeActionSheet();
-            releaseWakeLock(); 
-        }
-        // ▲ 여기까지
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
-
