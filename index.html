@@ -173,7 +173,7 @@
         .bible-search-input:focus { border-color: var(--accent-color); background: var(--card-bg); box-shadow: 0 0 0 3px rgba(150, 126, 118, 0.1); }
         .bible-search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
-        /* [수정] 성경 목록: 높이 강제 고정 (오와 열 맞춤) */
+        /* 성경 목록: 높이 강제 고정 */
         .bible-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
@@ -192,7 +192,7 @@
         .bible-book-btn:hover { border-color: #bbb; }
         .bible-book-btn.selected { background: var(--accent-color); color: white; border-color: var(--accent-color); font-weight: 700; }
 
-        /* [수정] 장 선택: 높이 강제 고정 (숫자판) */
+        /* 장 선택: 높이 강제 고정 */
         .chapter-grid { 
             display: grid; 
             grid-template-columns: repeat(5, 1fr); 
@@ -469,6 +469,8 @@
         let currentUserId = null; 
         let currentUserData = { name: "", history: [], today: null };
         let wakeLock = null; 
+
+        // [중요] 로고 설정이 없을 경우를 대비한 기본값
         let activeLogoConfig = (typeof logoConfig !== 'undefined') ? logoConfig : [];
 
         const canonicalBibleList = [
@@ -481,11 +483,15 @@
                 document.getElementById('verse').innerText = "데이터 오류: data.js를 확인하세요.";
                 return;
             }
+            
             const savedFont = localStorage.getItem(KEY_FONT_SIZE);
             if(savedFont) {
                 document.documentElement.style.setProperty('--bible-font-size', savedFont);
                 const index = fontSizes.indexOf(savedFont);
-                if(index !== -1) { currentFontSizeIndex = index; updateFontBtns(index); }
+                if(index !== -1) {
+                    currentFontSizeIndex = index;
+                    updateFontBtns(index);
+                }
             }
             const savedFamily = localStorage.getItem(KEY_FONT_FAMILY);
             if (savedFamily) setFontFamily(savedFamily, false);
@@ -531,9 +537,7 @@
             const logoImg = document.getElementById('custom-logo');
             const logoLink = document.getElementById('logo-link');
             let matchedRule = null;
-            if (typeof activeLogoConfig === 'undefined' || !Array.isArray(activeLogoConfig)) {
-                logoImg.style.display = 'none'; return;
-            }
+            // logo_config.js에서 불러온 설정 사용
             for (const rule of activeLogoConfig) { if (userId.startsWith(rule.prefix)) { matchedRule = rule; break; } }
             if (matchedRule) { logoImg.src = matchedRule.img; logoLink.href = matchedRule.link; logoImg.style.display = 'block'; } else { logoImg.style.display = 'none'; }
         }
@@ -558,6 +562,7 @@
                     
                     const todayStr = new Date().toLocaleDateString();
                     const lastVisit = localStorage.getItem(KEY_LAST_VISIT);
+                    
                     if (lastVisit === todayStr) {
                         document.getElementById('main-content').style.display = 'flex';
                         document.getElementById('main-content').style.animation = 'fadeInUp 0.8s ease-out';
@@ -565,6 +570,7 @@
                         document.getElementById('intro-screen').style.display = 'flex';
                         localStorage.setItem(KEY_LAST_VISIT, todayStr);
                     }
+
                 } else { setTimeout(() => openModal('name-modal'), 500); }
             }).catch(err => { showToast("데이터를 불러오지 못했습니다.", "fa-times"); });
         }
@@ -589,6 +595,7 @@
         function saveToHistory(dateStr, data) { if (!currentUserData.history.some(item => item.date === dateStr)) { currentUserData.history.unshift({ date: dateStr, verse: data.verse, source: data.source, image: data.image, meaning: data.meaning, prayer: "" }); if (currentUserData.history.length > 50) currentUserData.history.pop(); } }
         function editName() { document.getElementById('user-name-input').value = currentUserData.name; openModal('name-modal'); }
 
+        // --- [설정 함수] ---
         const fontSizes = ['0.9rem', '1.1rem', '1.3rem', '1.6rem']; 
         let currentFontSizeIndex = 1; 
 
@@ -601,6 +608,7 @@
         }
         function updateFontBtns(activeIdx) {
             const allBtns = document.querySelectorAll('.font-btn');
+            // 앞 4개만 폰트 사이즈
             for(let i=0; i<4; i++) {
                 if(i === activeIdx) allBtns[i].classList.add('active');
                 else allBtns[i].classList.remove('active');
@@ -623,6 +631,7 @@
             if(save) localStorage.setItem(KEY_FONT_FAMILY, type);
         }
 
+        // --- [성경 엔진] ---
         let viewBook = '';
         let viewChapter = 1;
         let observer = null;
@@ -632,13 +641,17 @@
         let longPressTimer;
         const longPressDuration = 500;
 
-        async function requestWakeLock() { if (!('wakeLock' in navigator)) return; try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
+        // [수정] 안전한 Wake Lock
+        async function requestWakeLock() {
+            if (!('wakeLock' in navigator)) return;
+            try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
+        }
         function releaseWakeLock() { if (wakeLock !== null) { wakeLock.release(); wakeLock = null; } }
 
         function openBibleModal() {
             openModal('bible-modal');
             requestWakeLock();
-            renderBibleBooks(); 
+            renderBibleBooks(); // [수정] 항상 목록부터 시작
         }
 
         function renderBibleBooks() {
@@ -678,6 +691,7 @@
             for (let i = 1; i <= count; i++) {
                 const btn = document.createElement('button');
                 btn.className = 'chapter-btn';
+                // [수정] '장' 글자 제거하고 숫자만 표시
                 btn.innerText = i; 
                 btn.onclick = () => initViewer(book, i);
                 container.appendChild(btn);
@@ -821,9 +835,11 @@
         
         window.addEventListener('click', function(event) {
             const sheet = document.getElementById('verse-action-sheet');
+            // 바깥 클릭 시 닫기
             if (sheet.classList.contains('show') && !sheet.contains(event.target) && !event.target.closest('.bible-verse-row')) {
                 closeActionSheet();
             }
+            // 모달 바깥 클릭 시 닫기
             if (event.target.classList.contains('modal-overlay')) {
                 closeModal(event.target.id);
             }
@@ -834,84 +850,6 @@
             navigator.clipboard.writeText(fullText).then(() => showToast("복사되었습니다."));
             closeActionSheet();
         }
-        // [누락된 공유 기능 추가]
-async function shareCardImage() { 
-    const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
-    const originalHTML = btn.innerHTML; 
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
-    
-    try {
-        // 1. 데이터 복사
-        document.getElementById('hidden-date').innerText = document.getElementById('card-date').innerText;
-        document.getElementById('hidden-text').innerText = document.getElementById('verse').innerText;
-        document.getElementById('hidden-source').innerText = document.getElementById('source').innerText;
-        document.getElementById('hidden-meaning').innerText = document.getElementById('meaning').innerText;
-        
-        // 2. 이미지 복사 및 로딩 대기
-        const sourceImg = document.getElementById('verse-img');
-        const hiddenImg = document.getElementById('hidden-img');
-        
-        const imageLoaded = new Promise((resolve) => {
-            if (hiddenImg.src === sourceImg.src && hiddenImg.complete) {
-                resolve(); 
-            } else {
-                hiddenImg.onload = resolve; 
-                hiddenImg.onerror = resolve; 
-                hiddenImg.src = sourceImg.src; 
-            }
-        });
-
-        const zone = document.getElementById('hidden-capture-zone');
-        zone.style.opacity = '1';
-        
-        await imageLoaded; 
-        await new Promise(r => setTimeout(r, 100)); // 렌더링 안정화 대기
-
-        // 3. 캡처 및 공유
-        const canvas = await html2canvas(document.getElementById('hidden-card'), { 
-            scale: 2, 
-            backgroundColor: '#ffffff', 
-            useCORS: true,
-            allowTaint: true
-        }); 
-        
-        zone.style.opacity = '0';
-
-        canvas.toBlob(async (blob) => { 
-            if (!blob) { 
-                alert("이미지 생성 실패"); 
-                btn.innerHTML = originalHTML; 
-                return; 
-            } 
-            
-            const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
-            
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
-                try { 
-                    await navigator.share({ 
-                        files: [file],
-                        title: '오늘의 묵상',
-                        text: '홀리 키링이 전하는 오늘의 말씀'
-                    }); 
-                } catch (err) {
-                    if (err.name !== 'AbortError') alert("공유 실패: " + err.message);
-                } 
-            } else { 
-                const link = document.createElement('a'); 
-                link.download = '오늘의묵상.jpg'; 
-                link.href = canvas.toDataURL('image/jpeg'); 
-                link.click(); 
-                alert("이미지가 갤러리에 저장되었습니다."); 
-            } 
-            btn.innerHTML = originalHTML; 
-        }, 'image/jpeg', 0.9); 
-
-    } catch (err) { 
-        console.error(err);
-        alert("오류 발생: " + err.message); 
-        btn.innerHTML = originalHTML; 
-    } 
-}
         async function shareSelectedVerse() {
             const fullText = `${selectedVerseText}\n\n- ${selectedVerseRef}`;
             if (navigator.share) { try { await navigator.share({ title: '오늘의 말씀', text: fullText }); } catch(e) {} } else { copySelectedVerse(); }
@@ -966,8 +904,86 @@ async function shareCardImage() {
         }
         function setTodayDateDisplay() { const t = new Date(); document.getElementById('card-date').innerText = `${t.getFullYear()}. ${t.getMonth() + 1}. ${t.getDate()}`; }
 
+        // [추가된 공유 기능 함수] - 이미지 로딩 대기 로직 포함
+        async function shareCardImage() { 
+            const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
+            const originalHTML = btn.innerHTML; 
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
+            
+            try {
+                // 1. 데이터 복사
+                document.getElementById('hidden-date').innerText = document.getElementById('card-date').innerText;
+                document.getElementById('hidden-text').innerText = document.getElementById('verse').innerText;
+                document.getElementById('hidden-source').innerText = document.getElementById('source').innerText;
+                document.getElementById('hidden-meaning').innerText = document.getElementById('meaning').innerText;
+                
+                // 2. 이미지 복사 및 로딩 대기
+                const sourceImg = document.getElementById('verse-img');
+                const hiddenImg = document.getElementById('hidden-img');
+                
+                const imageLoaded = new Promise((resolve) => {
+                    if (hiddenImg.src === sourceImg.src && hiddenImg.complete) {
+                        resolve(); 
+                    } else {
+                        hiddenImg.onload = resolve; 
+                        hiddenImg.onerror = resolve; 
+                        hiddenImg.src = sourceImg.src; 
+                    }
+                });
+
+                const zone = document.getElementById('hidden-capture-zone');
+                zone.style.opacity = '1';
+                
+                await imageLoaded; 
+                await new Promise(r => setTimeout(r, 100)); // 렌더링 안정화 대기
+
+                // 3. 캡처 및 공유
+                const canvas = await html2canvas(document.getElementById('hidden-card'), { 
+                    scale: 2, 
+                    backgroundColor: '#ffffff', 
+                    useCORS: true,
+                    allowTaint: true
+                }); 
+                
+                zone.style.opacity = '0';
+
+                canvas.toBlob(async (blob) => { 
+                    if (!blob) { 
+                        alert("이미지 생성 실패"); 
+                        btn.innerHTML = originalHTML; 
+                        return; 
+                    } 
+                    
+                    const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
+                    
+                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
+                        try { 
+                            await navigator.share({ 
+                                files: [file],
+                                title: '오늘의 묵상',
+                                text: '홀리 키링이 전하는 오늘의 말씀'
+                            }); 
+                        } catch (err) {
+                            if (err.name !== 'AbortError') alert("공유 실패: " + err.message);
+                        } 
+                    } else { 
+                        const link = document.createElement('a'); 
+                        link.download = '오늘의묵상.jpg'; 
+                        link.href = canvas.toDataURL('image/jpeg'); 
+                        link.click(); 
+                        alert("이미지가 갤러리에 저장되었습니다."); 
+                    } 
+                    btn.innerHTML = originalHTML; 
+                }, 'image/jpeg', 0.9); 
+
+            } catch (err) { 
+                console.error(err);
+                alert("오류 발생: " + err.message); 
+                btn.innerHTML = originalHTML; 
+            } 
+        }
+
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
-
