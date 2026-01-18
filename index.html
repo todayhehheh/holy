@@ -834,6 +834,84 @@
             navigator.clipboard.writeText(fullText).then(() => showToast("복사되었습니다."));
             closeActionSheet();
         }
+        // [누락된 공유 기능 추가]
+async function shareCardImage() { 
+    const btn = document.querySelector('.bottom-controls button:nth-child(2)'); 
+    const originalHTML = btn.innerHTML; 
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 생성 중...'; 
+    
+    try {
+        // 1. 데이터 복사
+        document.getElementById('hidden-date').innerText = document.getElementById('card-date').innerText;
+        document.getElementById('hidden-text').innerText = document.getElementById('verse').innerText;
+        document.getElementById('hidden-source').innerText = document.getElementById('source').innerText;
+        document.getElementById('hidden-meaning').innerText = document.getElementById('meaning').innerText;
+        
+        // 2. 이미지 복사 및 로딩 대기
+        const sourceImg = document.getElementById('verse-img');
+        const hiddenImg = document.getElementById('hidden-img');
+        
+        const imageLoaded = new Promise((resolve) => {
+            if (hiddenImg.src === sourceImg.src && hiddenImg.complete) {
+                resolve(); 
+            } else {
+                hiddenImg.onload = resolve; 
+                hiddenImg.onerror = resolve; 
+                hiddenImg.src = sourceImg.src; 
+            }
+        });
+
+        const zone = document.getElementById('hidden-capture-zone');
+        zone.style.opacity = '1';
+        
+        await imageLoaded; 
+        await new Promise(r => setTimeout(r, 100)); // 렌더링 안정화 대기
+
+        // 3. 캡처 및 공유
+        const canvas = await html2canvas(document.getElementById('hidden-card'), { 
+            scale: 2, 
+            backgroundColor: '#ffffff', 
+            useCORS: true,
+            allowTaint: true
+        }); 
+        
+        zone.style.opacity = '0';
+
+        canvas.toBlob(async (blob) => { 
+            if (!blob) { 
+                alert("이미지 생성 실패"); 
+                btn.innerHTML = originalHTML; 
+                return; 
+            } 
+            
+            const file = new File([blob], "daily_verse.jpg", { type: "image/jpeg" }); 
+            
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) { 
+                try { 
+                    await navigator.share({ 
+                        files: [file],
+                        title: '오늘의 묵상',
+                        text: '홀리 키링이 전하는 오늘의 말씀'
+                    }); 
+                } catch (err) {
+                    if (err.name !== 'AbortError') alert("공유 실패: " + err.message);
+                } 
+            } else { 
+                const link = document.createElement('a'); 
+                link.download = '오늘의묵상.jpg'; 
+                link.href = canvas.toDataURL('image/jpeg'); 
+                link.click(); 
+                alert("이미지가 갤러리에 저장되었습니다."); 
+            } 
+            btn.innerHTML = originalHTML; 
+        }, 'image/jpeg', 0.9); 
+
+    } catch (err) { 
+        console.error(err);
+        alert("오류 발생: " + err.message); 
+        btn.innerHTML = originalHTML; 
+    } 
+}
         async function shareSelectedVerse() {
             const fullText = `${selectedVerseText}\n\n- ${selectedVerseRef}`;
             if (navigator.share) { try { await navigator.share({ title: '오늘의 말씀', text: fullText }); } catch(e) {} } else { copySelectedVerse(); }
@@ -892,3 +970,4 @@
     </script>
 </body>
 </html>
+
